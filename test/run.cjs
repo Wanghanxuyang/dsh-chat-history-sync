@@ -38,10 +38,12 @@ for (const f of ['lib/index.js', 'client/client.js', 'lib/engine/catalog.cjs', '
 }
 ok('syntax lib/client/engine');
 
-const cfg = path.join(process.env.USERPROFILE || '', '.dsh', 'profiles', 'desktop', '.dsh-memory-sync', 'config.json');
+const cfg = path.join(process.env.USERPROFILE || '', '.dsh', 'profiles', 'desktop', '.dsh-chat-history-sync', 'config.json');
 if (fs.existsSync(cfg)) {
   const c = JSON.parse(fs.readFileSync(cfg, 'utf8'));
   if ((c.accounts || []).some((a) => a.token)) fail('config.json contains plaintext token');
   else ok('config.json has no plaintext token');
+  if ((c.accounts || []).some((a) => a.phone || a.email)) fail('config.json contains phone/email');
+  else ok('config.json has no phone/email');
 }
 console.log(process.exitCode ? 'TESTS FAILED' : 'TESTS PASSED');
