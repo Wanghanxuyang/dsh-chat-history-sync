@@ -12,6 +12,8 @@ for (const key of ['name', 'version', 'description', 'license', 'main', 'files']
   if (!pkg[key]) fail('package.json missing ' + key);
 if (!pkg.repository || !pkg.repository.url) fail('package.json missing repository');
 if (!pkg.homepage) fail('package.json missing homepage');
+if (!/^## 安装$/m.test(fs.readFileSync(path.join(root, 'README.md'), 'utf8'))) fail('README install section missing');
+if ((fs.readFileSync(path.join(root, 'README.md'), 'utf8').match(/^## 安装$/gm) || []).length > 1) fail('README has duplicate install sections');
 if (!fs.existsSync(path.join(root, 'README.en.md'))) fail('README.en.md missing');
 if (!fs.existsSync(path.join(root, 'locale', 'zh.json'))) fail('locale zh missing');
 if (!fs.existsSync(path.join(root, 'lib', 'browser', 'login-save.mjs'))) fail('bundled login script missing');
