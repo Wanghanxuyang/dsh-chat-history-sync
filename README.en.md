@@ -29,6 +29,7 @@ Then open **Settings → Chat History Sync → Log in → Sync now**.
 - Chat data stays in the local DSH workspace
 - Sync only talks to `chat.deepseek.com`
 - Tokens stay on this machine, encrypted with DPAPI
+- Phone/email are not collected; accounts are matched by userId/token only
 - No telemetry, no model calls; summaries are generated locally and free
 
 ## Scope
