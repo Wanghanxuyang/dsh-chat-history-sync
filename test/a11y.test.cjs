@@ -9,6 +9,7 @@ const checks = [
   ["role=status", /role: 'status'/],
   ["aria-live", /aria-live/],
   ["focus-visible", /focus-visible/],
+  ["progress aria", /aria-valuetext/],
   ["narrow breakpoint", /@media \(max-width:560px\)/],
 ];
 for (const [name, re] of checks) {
