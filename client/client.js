@@ -89,7 +89,7 @@ window.__ModuleLoader__.load({
     function FooterEntry({ wide }) {
       const [busy, setBusy] = React.useState(false);
       const [hover, setHover] = React.useState(false);
-      const [meta, setMeta] = React.useState({ running: false, pending: false });
+      const [meta, setMeta] = React.useState({ running: false, pending: false, empty: true });
       React.useEffect(() => {
         let alive = true;
         const tick = async () => {
@@ -99,7 +99,11 @@ window.__ModuleLoader__.load({
             const doc = res && res.ok ? res.value : null;
             const list = (doc && doc.namespaces) || [];
             const ns = list.find((n) => n.ns === NS) || list.find((n) => String(n.ns).endsWith(':' + NS) || String(n.ns).endsWith('/' + NS));
-            if (alive && ns) setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending) });
+            if (alive && ns) {
+              let accounts = [];
+              try { accounts = JSON.parse((ns.value && ns.value.accounts) || '[]'); } catch (e) { accounts = []; }
+              setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending), empty: !accounts.length });
+            }
           } catch (e) {}
         };
         tick();
@@ -108,7 +112,7 @@ window.__ModuleLoader__.load({
       }, []);
       const running = busy || meta.running;
       const run = async () => {
-        if (running) return;
+        if (running || meta.empty) return;
         setBusy(true);
         try {
           const res = await clientCtx.remote.settings.describe();
@@ -124,14 +128,14 @@ window.__ModuleLoader__.load({
       return h('button', {
         type: 'button',
         className: 'msx-footer-action',
-        title: running ? '正在同步，可在设置页查看进度' : '立即同步聊天历史',
-        'aria-label': running ? '正在同步聊天历史' : '立即同步聊天历史',
-        disabled: running,
+        title: meta.empty ? '请先在设置中登录账号' : (running ? '正在同步，可在设置页查看进度' : '立即同步聊天历史'),
+        'aria-label': meta.empty ? '未登录，请先在设置中登录账号' : (running ? '正在同步聊天历史' : '立即同步聊天历史'),
+        disabled: running || meta.empty,
         onClick: run,
         onMouseEnter: () => setHover(true),
         onMouseLeave: () => setHover(false),
         style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: hover && !running ? 'var(--dsw-alias-bg-layer-2)' : 'transparent', color: 'var(--dsw-alias-label-secondary)', font: 'inherit', fontSize: 13, cursor: 'pointer' },
-      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, running ? '…' : '↻', meta.pending && !running ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning)' } }) : null), wide ? h('span', null, running ? '正在同步' : (meta.pending ? '待安装' : '同步聊天历史')) : null);
+      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, running ? '…' : '↻', meta.pending && !running ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning)' } }) : null), wide ? h('span', null, meta.empty ? '未登录' : (running ? '正在同步' : (meta.pending ? '待安装' : '同步聊天历史'))) : null);
     }
 
     class SlotBoundary extends React.Component {
