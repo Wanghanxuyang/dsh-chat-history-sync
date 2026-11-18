@@ -16,7 +16,7 @@ DeepSeek keeps chats in the web app and mobile app, but DSH cannot see them or c
 
 ## Install
 
-Requirements: Windows 10/11, DSH 0.2.x.
+Requirements: Windows 10/11, DSH 0.2.2-rc.3+.
 
 ```powershell
 dsh plugin add dsh-chat-history-sync
