@@ -16,7 +16,9 @@ if (!fs.existsSync(path.join(root, 'README.en.md'))) fail('README.en.md missing'
 if (!fs.existsSync(path.join(root, 'locale', 'zh.json'))) fail('locale zh missing');
 if (!fs.existsSync(path.join(root, 'lib', 'browser', 'login-save.mjs'))) fail('bundled login script missing');
 if (!fs.existsSync(path.join(root, 'lib', 'engine', 'install.cjs'))) fail('bundled installer missing');
+if (!Array.isArray(pkg.files) || !pkg.files.includes('lib')) fail('package files must include lib');
 if (!pkg.dependencies || !pkg.dependencies['puppeteer-core']) fail('puppeteer-core dependency missing');
+if (!pkg.engines || !pkg.engines.dsh) fail('DSH engine declaration missing');
 }
 if (!/^\d+\.\d+\.\d+/.test(pkg.version)) fail('version is not semver: ' + pkg.version);
 if (pkg.license !== 'MIT') fail('license should be MIT');
