@@ -89,7 +89,7 @@ window.__ModuleLoader__.load({
     function FooterEntry({ wide }) {
       const [busy, setBusy] = React.useState(false);
       const [hover, setHover] = React.useState(false);
-      const [meta, setMeta] = React.useState({ running: false, pending: false, empty: true });
+      const [meta, setMeta] = React.useState({ running: false, pending: false, empty: false });
       React.useEffect(() => {
         let alive = true;
         const tick = async () => {
