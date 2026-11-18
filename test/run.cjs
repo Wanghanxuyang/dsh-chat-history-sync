@@ -34,6 +34,7 @@ if (!indexText.includes("runNow: false, status: 'running'")) fail('runNow edge n
 if (!indexText.includes('pending.failed')) fail('install failure marker not read');
 if (!indexText.includes('该账号在登录期间已被删除')) fail('login stale snapshot guard missing');
 if (!indexText.includes('安装未完成，请重试')) fail('install watchdog missing');
+if (!indexText.includes('persistSettings failed')) fail('settings write retry/log missing');
 }
 if (!/^\d+\.\d+\.\d+/.test(pkg.version)) fail('version is not semver: ' + pkg.version);
 if (pkg.license !== 'MIT') fail('license should be MIT');
