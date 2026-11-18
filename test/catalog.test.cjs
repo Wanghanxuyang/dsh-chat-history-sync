@@ -11,6 +11,7 @@ fs.mkdirSync(raw, { recursive: true });
 fs.writeFileSync(path.join(raw, 'account-prefixes.json'), JSON.stringify({ 'conversations.demo.json': '测试号' }));
 const mk = (id, text) => ({ id, title: '同名会话', updated_at: 1700000000, messages: [{ role: 'user', text }, { role: 'assistant', text: '回答：' + text }] });
 fs.writeFileSync(path.join(raw, 'conversations.demo.json'), JSON.stringify({ conversations: [mk('a1', '第一个版本的问题'), mk('a2', '第二个版本的问题')] }));
+fs.writeFileSync(path.join(raw, 'conversations.broken.json'), '{broken');
 const r = spawnSync(process.execPath, [path.join(root, 'lib', 'engine', 'catalog.cjs'), tmp], { encoding: 'utf8' });
 if (r.status !== 0) { console.error(r.stderr || r.stdout); process.exit(1); }
 const cat = fs.readFileSync(path.join(raw, '分类目录.md'), 'utf8');
