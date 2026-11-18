@@ -89,7 +89,7 @@ window.__ModuleLoader__.load({
     function FooterEntry({ wide }) {
       const [busy, setBusy] = React.useState(false);
       const [hover, setHover] = React.useState(false);
-      const [meta, setMeta] = React.useState({ running: false, pending: false, deferred: false, empty: false });
+      const [meta, setMeta] = React.useState({ running: false, pending: false, deferred: false, empty: false, noEnabled: false });
       React.useEffect(() => {
         let alive = true;
         const tick = async () => {
@@ -102,7 +102,7 @@ window.__ModuleLoader__.load({
             if (alive && ns) {
               let accounts = [];
               try { accounts = JSON.parse((ns.value && ns.value.accounts) || '[]'); } catch (e) { accounts = []; }
-              setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending), deferred: !!(ns.value && ns.value.installDeferred), empty: !accounts.length });
+              setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending), deferred: !!(ns.value && ns.value.installDeferred), empty: !accounts.length, noEnabled: accounts.length > 0 && !accounts.some((a) => a && a.enabled !== false) });
             }
           } catch (e) {}
         };
@@ -112,7 +112,7 @@ window.__ModuleLoader__.load({
       }, []);
       const running = busy || meta.running;
       const run = async () => {
-        if (running || meta.empty) return;
+        if (running || meta.empty || meta.noEnabled) return;
         setBusy(true);
         try {
           const res = await clientCtx.remote.settings.describe();
@@ -128,14 +128,14 @@ window.__ModuleLoader__.load({
       return h('button', {
         type: 'button',
         className: 'msx-footer-action',
-        title: meta.empty ? '请先在设置中登录账号' : (running ? '正在同步，可在设置页查看进度' : '立即同步聊天历史'),
-        'aria-label': meta.empty ? '未登录，请先在设置中登录账号' : (running ? '正在同步聊天历史' : '立即同步聊天历史'),
-        disabled: running || meta.empty,
+        title: meta.empty ? '请先在设置中登录账号' : (meta.noEnabled ? '请先在设置中启用账号' : (running ? '正在同步，可在设置页查看进度' : '立即同步聊天历史')),
+        'aria-label': meta.empty ? '未登录，请先在设置中登录账号' : (meta.noEnabled ? '未启用账号，请先在设置中启用' : (running ? '正在同步聊天历史' : '立即同步聊天历史')),
+        disabled: running || meta.empty || meta.noEnabled,
         onClick: run,
         onMouseEnter: () => setHover(true),
         onMouseLeave: () => setHover(false),
         style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: hover && !running ? 'var(--dsw-alias-bg-layer-2)' : 'transparent', color: 'var(--dsw-alias-label-secondary)', font: 'inherit', fontSize: 13, cursor: 'pointer' },
-      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, running ? '…' : '↻', (meta.pending || meta.deferred) && !running ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning, #f5a623)' } }) : null), wide ? h('span', null, meta.empty ? '未登录' : (running ? '正在同步' : '同步聊天历史')) : null);
+      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, running ? '…' : '↻', (meta.pending || meta.deferred) && !running ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning, #f5a623)' } }) : null), wide ? h('span', null, meta.empty ? '未登录' : (meta.noEnabled ? '先启用' : (running ? '正在同步' : '同步聊天历史'))) : null);
     }
 
     class SlotBoundary extends React.Component {
@@ -506,7 +506,7 @@ window.__ModuleLoader__.load({
               h('div', { className: 'msx-row' },
                 h('div', null,
                   h('div', { className: 'msx-label' }, '每日汇总'),
-                  h('div', { className: 'msx-sub' }, '有变化时，每天 9:00 后发一条摘要'),
+                  h('div', { className: 'msx-sub' }, '需开启自动同步；有变化时 9:00 后发一条摘要'),
                 ),
                 h('label', { style: { display: 'flex', alignItems: 'center' } },
                   h('input', { type: 'checkbox', checked: digestOn, disabled: busy, 'aria-label': '每日汇总', onChange: (e) => void write('digestEnabled', e.target.checked) }),
