@@ -319,7 +319,7 @@ window.__ModuleLoader__.load({
       const setAccounts = (next) => { void write('accounts', JSON.stringify(next)); };
       const patchRow = (i, patch) => { const n = accounts.slice(); n[i] = { ...n[i], ...patch }; setAccounts(n); };
       const loginStatus = value && value.loginStatus;
-      const statusLine = msg || (running ? '正在同步…' : (value && value.lastSyncAt ? '已同步' : '尚未同步'));
+      const statusLine = msg || (running ? '正在同步…' : (value && value.status === 'error' ? String(value.statusText || '同步失败') : (value && value.lastSyncAt ? '已同步' : '尚未同步')));
       const pendingText = /检测到新会话/.test(String((value && value.statusText) || ''));
       const needInstall = installPending || pendingText;
       const shownStatus = (!running && pendingText) ? '同步完成 · 待确认安装' : statusLine;
