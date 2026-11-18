@@ -16,6 +16,7 @@ if (!/^## 安装$/m.test(fs.readFileSync(path.join(root, 'README.md'), 'utf8')))
 if ((fs.readFileSync(path.join(root, 'README.md'), 'utf8').match(/^## 安装$/gm) || []).length > 1) fail('README has duplicate install sections');
 if (!fs.existsSync(path.join(root, 'README.en.md'))) fail('README.en.md missing');
 if (!fs.existsSync(path.join(root, 'SECURITY.md'))) fail('SECURITY.md missing');
+if (!fs.existsSync(path.join(root, 'docs', 'RELEASE.md'))) fail('release checklist missing');
 if (!pkg.files.includes('SECURITY.md')) fail('package files missing SECURITY.md');
 if (!fs.existsSync(path.join(root, 'locale', 'zh.json'))) fail('locale zh missing');
 if (!fs.existsSync(path.join(root, 'lib', 'browser', 'login-save.mjs'))) fail('bundled login script missing');
