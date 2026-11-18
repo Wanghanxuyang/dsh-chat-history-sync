@@ -99,18 +99,18 @@ window.__ModuleLoader__.load({
           if (!ns) return;
           await clientCtx.remote.settings.mutate(ns.ns, [{ op: 'set', path: ['runNow'], value: true }], ns.revision || 0);
         } catch (e) {} finally {
-          setTimeout(() => setBusy(false), 1200);
+          setTimeout(() => setBusy(false), 5000);
         }
       };
       return h('button', {
         type: 'button',
         className: 'msx-footer-action',
-        title: '立即同步聊天历史',
-        'aria-label': '立即同步聊天历史',
+        title: busy ? '已开始同步，可在设置页查看进度' : '立即同步聊天历史',
+        'aria-label': busy ? '已开始同步聊天历史' : '立即同步聊天历史',
         disabled: busy,
         onClick: run,
         style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: 'transparent', color: 'var(--dsw-alias-label-secondary)', font: 'inherit', fontSize: 13, cursor: 'pointer' },
-      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1 } }, busy ? '…' : '↻'), wide ? h('span', null, busy ? '正在触发同步' : '同步聊天历史') : null);
+      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1 } }, busy ? '…' : '↻'), wide ? h('span', null, busy ? '已开始同步' : '同步聊天历史') : null);
     }
 
     function Card() {
