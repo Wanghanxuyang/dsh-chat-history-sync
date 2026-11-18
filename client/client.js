@@ -134,6 +134,21 @@ window.__ModuleLoader__.load({
       }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, running ? '…' : '↻', meta.pending && !running ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning)' } }) : null), wide ? h('span', null, running ? '正在同步' : (meta.pending ? '待安装' : '同步聊天历史')) : null);
     }
 
+    class SlotBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { err: null };
+      }
+      static getDerivedStateFromError(err) { return { err }; }
+      render() {
+        if (this.state.err) return h('div', { style: { padding: '12px 16px', color: 'var(--dsw-alias-state-error)', fontSize: 13 } }, '界面加载失败，请关闭设置后重开。');
+        return this.props.children;
+      }
+    }
+
+    function CardSafe() { return h(SlotBoundary, null, h(Card)); }
+    function FooterSafe(props) { return h(SlotBoundary, null, h(FooterEntry, props)); }
+
     function Card() {
       const [value, setValue] = React.useState(null);
       const [revision, setRevision] = React.useState(0);
@@ -514,13 +529,13 @@ window.__ModuleLoader__.load({
           id: 'chat-history-sync',
           order: 16,
           label: '聊天历史同步',
-        }, Card));
+        }, CardSafe));
         ctx.slots.inject('sidebar.footer.action', () => ctx.slots.register({
           name: 'sidebar.footer.action',
           id: 'chat-history-sync',
           order: 27,
           label: () => '同步聊天历史',
-        }, FooterEntry));
+        }, FooterSafe));
       },
     };
   },
