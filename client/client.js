@@ -89,7 +89,7 @@ window.__ModuleLoader__.load({
     function FooterEntry({ wide }) {
       const [busy, setBusy] = React.useState(false);
       const [hover, setHover] = React.useState(false);
-      const [meta, setMeta] = React.useState({ running: false, pending: false, empty: false });
+      const [meta, setMeta] = React.useState({ running: false, pending: false, deferred: false, empty: false });
       React.useEffect(() => {
         let alive = true;
         const tick = async () => {
@@ -102,7 +102,7 @@ window.__ModuleLoader__.load({
             if (alive && ns) {
               let accounts = [];
               try { accounts = JSON.parse((ns.value && ns.value.accounts) || '[]'); } catch (e) { accounts = []; }
-              setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending), empty: !accounts.length });
+              setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending), deferred: !!(ns.value && ns.value.installDeferred), empty: !accounts.length });
             }
           } catch (e) {}
         };
@@ -135,7 +135,7 @@ window.__ModuleLoader__.load({
         onMouseEnter: () => setHover(true),
         onMouseLeave: () => setHover(false),
         style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: hover && !running ? 'var(--dsw-alias-bg-layer-2)' : 'transparent', color: 'var(--dsw-alias-label-secondary)', font: 'inherit', fontSize: 13, cursor: 'pointer' },
-      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, running ? '…' : '↻', meta.pending && !running ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning)' } }) : null), wide ? h('span', null, meta.empty ? '未登录' : (running ? '正在同步' : (meta.pending ? '待安装' : '同步聊天历史'))) : null);
+      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, running ? '…' : '↻', (meta.pending || meta.deferred) && !running ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning, #f5a623)' } }) : null), wide ? h('span', null, meta.empty ? '未登录' : (running ? '正在同步' : ((meta.pending || meta.deferred) ? '待安装' : '同步聊天历史'))) : null);
     }
 
     class SlotBoundary extends React.Component {
@@ -347,7 +347,8 @@ window.__ModuleLoader__.load({
       const loginPending = !hasAccounts && /正在打开登录页|请在弹出的浏览器/.test(String(loginStatus || ''));
       const statusLine = value ? (msg || (running ? '正在同步…' : (value.status === 'error' ? String(value.statusText || '同步失败') : (value.lastSyncAt ? '已同步' : '尚未同步')))) : (msg || '读取中…');
       const pendingText = /检测到新会话/.test(String((value && value.statusText) || ''));
-      const needInstall = !installDeferred && (installPending || pendingText);
+      const pendingInstall = installPending || pendingText;
+      const needInstall = !installDeferred && pendingInstall;
       const shownStatus = loginPending ? '等待登录…' : ((!running && pendingText) ? '同步完成 · 待确认安装' : statusLine);
       const failed = !!(value && (value.status === 'error' || /失败|失效/.test(String(shownStatus || ''))));
       const fmtTime = (ts) => {
@@ -369,7 +370,7 @@ window.__ModuleLoader__.load({
               h('div', { style: { display: 'flex', alignItems: 'center', gap: 8, minHeight: 20 } },
                 h('span', { className: 'msx-label' }, '同步状态'),
                 h('span', { role: 'status', 'aria-live': 'polite', style: { fontSize: 14, fontWeight: 600, color: failed ? 'var(--dsw-alias-state-error)' : 'var(--dsw-alias-label-primary)' } }, shownStatus),
-                !running ? h('i', { 'aria-hidden': 'true', style: { display: 'inline-block', flex: '0 0 auto', width: 6, height: 6, borderRadius: '50%', background: failed ? 'var(--dsw-alias-state-error, #e5484d)' : (needInstall ? 'var(--dsw-alias-state-warning, #f5a623)' : (hasAccounts ? 'var(--dsw-alias-state-success, #30a46c)' : 'var(--dsw-alias-label-tertiary, #8b8f98)')) } }) : null,
+                !running ? h('i', { 'aria-hidden': 'true', style: { display: 'inline-block', flex: '0 0 auto', width: 6, height: 6, borderRadius: '50%', background: failed ? 'var(--dsw-alias-state-error, #e5484d)' : (pendingInstall ? 'var(--dsw-alias-state-warning, #f5a623)' : (hasAccounts ? 'var(--dsw-alias-state-success, #30a46c)' : 'var(--dsw-alias-label-tertiary, #8b8f98)')) } }) : null,
               ),
               h('div', { className: 'msx-sub' }, !value ? '正在读取同步设置…' : (loginPending ? '请在弹出的浏览器完成登录。' : (running ? '后台同步中，可离开此页。' : (!hasAccounts ? (hasAnyAccounts ? '先启用账号，再同步。' : '先登录账号，再同步。') : (failed ? '可重试，或查看报告。' : '同步时可离开此页。'))))),
             ),
