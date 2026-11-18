@@ -333,6 +333,7 @@ window.__ModuleLoader__.load({
       if (!Array.isArray(accounts)) accounts = [];
       const installPending = !!(value && value.installPending) || accounts.some((a) => a && a.__installPending);
       const installDeferred = !!(value && value.installDeferred);
+      const duplicateCount = Number(value && value.duplicateCount) || 0;
       let health = {};
       try { health = JSON.parse((value && value.accountHealth) || '{}'); } catch (e) { health = {}; }
       let attachStats = null;
@@ -381,7 +382,7 @@ window.__ModuleLoader__.load({
             h('span', { className: 'msx-sub', style: { marginTop: 0, color: installDeferred ? 'var(--dsw-alias-state-warning, #b86e00)' : undefined } }, installDeferred ? '有会话待安装' : (value.lastSyncAt ? '上次同步 ' + fmtTime(value.lastSyncAt) : '还没有同步记录')),
             h('div', { style: { display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 } },
               installDeferred ? h('button', { className: 'msx-linkbtn', disabled: busy, onClick: () => void write('installNow', true) }, '安装') : null,
-              (value.reportText) ? h('button', { className: 'msx-linkbtn', style: { flexShrink: 0 }, 'aria-expanded': reportOpen, onClick: () => setReportOpen(!reportOpen) }, reportOpen ? '收起报告' : '查看报告') : null,
+              (value.reportText) ? h('button', { className: 'msx-linkbtn', style: { flexShrink: 0 }, 'aria-expanded': reportOpen, title: duplicateCount > 0 ? duplicateCount + ' 组同名但内容不同的会话已分别保留，点开报告查看' : undefined, 'aria-label': duplicateCount > 0 ? '查看报告，含 ' + duplicateCount + ' 组同名会话' : '查看报告', onClick: () => setReportOpen(!reportOpen) }, reportOpen ? '收起报告' : (duplicateCount > 0 ? '查看报告 · ' + duplicateCount + ' 组同名' : '查看报告')) : null,
             ),
           ) : null,
           (reportOpen && value && value.reportText) ? h('div', { className: 'msx-report' },
@@ -446,10 +447,7 @@ window.__ModuleLoader__.load({
               )),
           ) : null,
           h('button', { className: 'msx-dashed', disabled: busy, 'aria-label': '登录新的 DeepSeek 账号', onClick: login }, '＋ 登录新账号'),
-          (value && Number(value.duplicateCount) > 0) ? h('div', { className: 'msx-sub', style: { marginTop: 6 } },
-            Number(value.duplicateCount) + ' 组同名但内容不同的会话已分别保留；',
-            h('button', { className: 'msx-linkbtn', style: { padding: 0, fontSize: 'inherit' }, onClick: () => setReportOpen(true) }, '查看报告'),
-          ) : null,
+
           (value && value.loginStatus && /请在弹出的浏览器|正在打开登录页/.test(String(value.loginStatus)))
             ? h('button', { className: 'msx-btn', style: { marginTop: 8 }, disabled: busy, onClick: () => void write('loginCancel', Date.now()) }, '取消登录')
             : null,
