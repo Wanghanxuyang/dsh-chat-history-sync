@@ -46,4 +46,21 @@ if (fs.existsSync(cfg)) {
   if ((c.accounts || []).some((a) => a.phone || a.email)) fail('config.json contains phone/email');
   else ok('config.json has no phone/email');
 }
+// 发布源码中不允许出现手机号/本机绝对路径/真实 token
+const textFiles = [];
+const walk = (dir) => {
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (e.name === 'node_modules' || e.name === '.git' || e.name === 'tmp') continue;
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) walk(p);
+    else if (/\.(js|cjs|json|md|yml|svg)$/.test(e.name)) textFiles.push(p);
+  }
+};
+walk(root);
+const leakPatterns = [/\d{3}\*{6}\d{2}/, /npm_[A-Za-z0-9]{20,}/, /C:\\Users\\dell/i, /Bearer\s+[A-Za-z0-9._-]{20,}/];
+for (const f of textFiles) {
+  const text = fs.readFileSync(f, 'utf8');
+  for (const re of leakPatterns) if (re.test(text)) fail('possible personal data in ' + path.relative(root, f));
+}
+ok('no phone/token/local-path patterns in source');
 console.log(process.exitCode ? 'TESTS FAILED' : 'TESTS PASSED');
