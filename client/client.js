@@ -332,6 +332,7 @@ window.__ModuleLoader__.load({
       try { accounts = JSON.parse((value && value.accounts) || '[]'); } catch (e) { accounts = []; }
       if (!Array.isArray(accounts)) accounts = [];
       const installPending = !!(value && value.installPending) || accounts.some((a) => a && a.__installPending);
+      const installDeferred = !!(value && value.installDeferred);
       let health = {};
       try { health = JSON.parse((value && value.accountHealth) || '{}'); } catch (e) { health = {}; }
       let attachStats = null;
@@ -344,7 +345,7 @@ window.__ModuleLoader__.load({
       const loginStatus = value && value.loginStatus;
       const statusLine = msg || (running ? '正在同步…' : (value && value.status === 'error' ? String(value.statusText || '同步失败') : (value && value.lastSyncAt ? '已同步' : '尚未同步')));
       const pendingText = /检测到新会话/.test(String((value && value.statusText) || ''));
-      const needInstall = installPending || pendingText;
+      const needInstall = !installDeferred && (installPending || pendingText);
       const shownStatus = (!running && pendingText) ? '同步完成 · 待确认安装' : statusLine;
       const failed = !!(value && (value.status === 'error' || /失败|失效/.test(String(shownStatus || ''))));
       const fmtTime = (ts) => {
@@ -376,9 +377,12 @@ window.__ModuleLoader__.load({
             ),
           ),
           running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuetext': '同步进行中' }, h('i', null)) : null,
-          (value && (value.lastSyncAt || value.reportText)) ? h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderTop: '1px solid var(--dsw-alias-border-l1)', padding: '9px 16px', flexWrap: 'wrap' } },
-            h('span', { className: 'msx-sub', style: { marginTop: 0 } }, value.lastSyncAt ? '上次同步 ' + fmtTime(value.lastSyncAt) : '还没有同步记录'),
-            (value.reportText) ? h('button', { className: 'msx-linkbtn', style: { flexShrink: 0 }, 'aria-expanded': reportOpen, onClick: () => setReportOpen(!reportOpen) }, reportOpen ? '收起报告' : '查看报告') : null,
+          (value && (value.lastSyncAt || value.reportText || installDeferred)) ? h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderTop: '1px solid var(--dsw-alias-border-l1)', padding: '9px 16px', flexWrap: 'wrap' } },
+            h('span', { className: 'msx-sub', style: { marginTop: 0 } }, installDeferred ? '有会话待安装' : (value.lastSyncAt ? '上次同步 ' + fmtTime(value.lastSyncAt) : '还没有同步记录')),
+            h('div', { style: { display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 } },
+              installDeferred ? h('button', { className: 'msx-linkbtn', disabled: busy, onClick: () => void write('installNow', true) }, '安装') : null,
+              (value.reportText) ? h('button', { className: 'msx-linkbtn', style: { flexShrink: 0 }, 'aria-expanded': reportOpen, onClick: () => setReportOpen(!reportOpen) }, reportOpen ? '收起报告' : '查看报告') : null,
+            ),
           ) : null,
           (reportOpen && value && value.reportText) ? h('div', { className: 'msx-report' },
             renderReportText(reportFull ? value.reportText : (String(value.reportText).slice(0, 1200) + (String(value.reportText).length > 1200 ? '\n…' : ''))),
