@@ -365,9 +365,11 @@ window.__ModuleLoader__.load({
       const loginStatus = value && value.loginStatus;
       const loginPending = !hasAccounts && /正在打开登录页|请在弹出的浏览器/.test(String(loginStatus || ''));
       const statusText = String((value && value.statusText) || '');
+      const progressMatch = statusText.match(/正在同步\s+(\d+)\/(\d+)/);
+      const progressText = progressMatch ? '正在同步 ' + progressMatch[1] + '/' + progressMatch[2] : '正在同步…';
       const actionVisible = /安装完成|安装失败|安装调度失败|已安排安装|已取消本次安装|有会话待安装/.test(statusText);
       const installFailed = /安装失败|安装调度失败/.test(statusText);
-      const statusLine = value ? (msg || (running ? '正在同步…' : (value.status === 'error' ? String(value.statusText || '同步失败') : (actionVisible ? statusText : (value.lastSyncAt ? '已同步' : '尚未同步'))))) : (msg || '读取中…');
+      const statusLine = value ? (msg || (running ? progressText : (value.status === 'error' ? String(value.statusText || '同步失败') : (actionVisible ? statusText : (value.lastSyncAt ? '已同步' : '尚未同步'))))) : (msg || '读取中…');
       const pendingText = /检测到新会话/.test(String((value && value.statusText) || ''));
       const pendingInstall = installPending || pendingText;
       const needInstall = !installDeferred && pendingInstall;
@@ -391,7 +393,7 @@ window.__ModuleLoader__.load({
             h('div', { style: { minWidth: 0 } },
               h('div', { style: { display: 'flex', alignItems: 'center', gap: 8, minHeight: 20 } },
                 h('span', { className: 'msx-label' }, '同步状态'),
-                h('span', { role: 'status', 'aria-live': 'polite', style: { fontSize: 14, fontWeight: 600, color: failed ? 'var(--dsw-alias-state-error)' : 'var(--dsw-alias-label-primary)' } }, shownStatus),
+                h('span', { role: 'status', 'aria-live': running ? 'off' : 'polite', style: { fontSize: 14, fontWeight: 600, color: failed ? 'var(--dsw-alias-state-error)' : 'var(--dsw-alias-label-primary)' } }, shownStatus),
                 !running ? h('i', { 'aria-hidden': 'true', style: { display: 'inline-block', flex: '0 0 auto', width: 6, height: 6, borderRadius: '50%', background: failed ? 'var(--dsw-alias-state-error, #e5484d)' : (pendingInstall ? 'var(--dsw-alias-state-warning, #f5a623)' : (hasAccounts ? 'var(--dsw-alias-state-success, #30a46c)' : 'var(--dsw-alias-label-tertiary, #8b8f98)')) } }) : null,
               ),
               h('div', { className: 'msx-sub' }, !value ? '正在读取同步设置…' : (loginPending ? '请在弹出的浏览器完成登录。' : (running ? '后台同步中，可离开此页。' : (!hasAccounts ? (hasAnyAccounts ? '先启用账号，再同步。' : '先登录账号，再同步。') : (installFailed ? '可稍后重试安装。' : (failed ? '可重试，或查看报告。' : '同步时可离开此页。')))))),
