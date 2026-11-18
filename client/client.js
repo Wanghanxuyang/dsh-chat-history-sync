@@ -274,7 +274,13 @@ window.__ModuleLoader__.load({
       const write = async (field, v) => {
         setBusy(true);
         try {
-          const r = await clientCtx.remote.settings.mutate(nsRef.current, [{ op: 'set', path: [field], value: v }], revision);
+          const ops = [{ op: 'set', path: [field], value: v }];
+          let r = await clientCtx.remote.settings.mutate(nsRef.current, ops, revision);
+          if (!r || !r.ok) {
+            // 同步进度会频繁 bump revision；重新读取一次再重试，避免编辑被静默回滚
+            const fresh = await findNs();
+            if (fresh) r = await clientCtx.remote.settings.mutate(nsRef.current, ops, fresh.revision);
+          }
           if (r && r.ok) {
             setRevision(r.value.revision); lastRev.current = r.value.revision; setValue(r.value.value || {}); setMsg('已保存');
             setTimeout(() => setMsg((cur) => (cur === '已保存' ? '' : cur)), 1800);
