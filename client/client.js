@@ -394,7 +394,7 @@ window.__ModuleLoader__.load({
           ),
           h('div', { style: { display: 'flex', gap: 8, marginTop: 10 } },
             h('button', { className: 'msx-btn msx-btn-primary', disabled: busy, 'aria-label': '立即安装到工作区并重启 DSH', onClick: () => void write('installNow', true) }, '立即安装'),
-            h('button', { className: 'msx-btn', disabled: busy, 'aria-label': '取消本次安装', onClick: () => void write('installPending', false) }, '取消本次'),
+            h('button', { className: 'msx-btn', disabled: busy, 'aria-label': '取消本次安装', onClick: () => void write('installCancel', true) }, '取消本次'),
           ),
         ) : null,
 
