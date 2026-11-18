@@ -37,6 +37,7 @@ if (!indexText.includes('安装未完成，请重试')) fail('install watchdog m
 if (!indexText.includes('persistSettings failed')) fail('settings write retry/log missing');
 if (!indexText.includes("Microsoft', 'Edge'")) fail('per-user Edge path missing');
 if (!indexText.includes('AddSeconds(30)')) fail('installer process wait missing');
+if (!indexText.includes('opts.failed')) fail('afterSync failure guard missing');
 }
 if (!/^\d+\.\d+\.\d+/.test(pkg.version)) fail('version is not semver: ' + pkg.version);
 if (pkg.license !== 'MIT') fail('license should be MIT');
