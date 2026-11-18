@@ -445,6 +445,7 @@ window.__ModuleLoader__.load({
         h('div', { style: { marginTop: 8 } },
           h('button', { className: 'msx-linkbtn', disabled: busy, 'aria-label': '导出脱敏诊断信息', onClick: () => void write('exportDiagnostics', true) }, '导出诊断（不含 token）'),
         ),
+        h('div', { className: 'msx-muted' }, '报告摘要由本地规则生成，不调用模型；同步免费。'),
         h('div', { className: 'msx-muted' }, '同步有新增时会先出「检测到新会话」确认卡；点「立即安装」才重启。成功且无新增不弹系统通知；自动巡检只更新报告，不打扰。'),
       );
     }
