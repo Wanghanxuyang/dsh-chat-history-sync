@@ -60,7 +60,7 @@ const walk = (dir) => {
   }
 };
 walk(root);
-const leakPatterns = [/\d{3}\*{6}\d{2}/, /npm_[A-Za-z0-9]{20,}/, /C:\\Users\\dell/i, /Bearer\s+[A-Za-z0-9._-]{20,}/];
+const leakPatterns = [/\d{3}\*{6}\d{2}/, /npm_[A-Za-z0-9]{20,}/, /C:\\Users\\[^\\\s]+/i, /Bearer\s+[A-Za-z0-9._-]{20,}/];
 for (const f of textFiles) {
   const text = fs.readFileSync(f, 'utf8');
   for (const re of leakPatterns) if (re.test(text)) fail('possible personal data in ' + path.relative(root, f));
