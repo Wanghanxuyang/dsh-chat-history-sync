@@ -135,7 +135,7 @@ window.__ModuleLoader__.load({
         onMouseEnter: () => setHover(true),
         onMouseLeave: () => setHover(false),
         style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: hover && !running ? 'var(--dsw-alias-bg-layer-2)' : 'transparent', color: 'var(--dsw-alias-label-secondary)', font: 'inherit', fontSize: 13, cursor: 'pointer' },
-      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, running ? '…' : '↻', (meta.pending || meta.deferred) && !running ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning, #f5a623)' } }) : null), wide ? h('span', null, meta.empty ? '未登录' : (running ? '正在同步' : ((meta.pending || meta.deferred) ? '待安装' : '同步聊天历史'))) : null);
+      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, running ? '…' : '↻', (meta.pending || meta.deferred) && !running ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning, #f5a623)' } }) : null), wide ? h('span', null, meta.empty ? '未登录' : (running ? '正在同步' : '同步聊天历史')) : null);
     }
 
     class SlotBoundary extends React.Component {
@@ -338,7 +338,7 @@ window.__ModuleLoader__.load({
       try { health = JSON.parse((value && value.accountHealth) || '{}'); } catch (e) { health = {}; }
       let attachStats = null;
       try { attachStats = JSON.parse((value && value.attachmentStats) || 'null'); } catch (e) { attachStats = null; }
-      const attachText = attachStats ? '预计 ' + attachStats.count + ' 个附件 · ' + (attachStats.bytes / 1048576).toFixed(1) + ' MB' : '';
+      const attachText = attachStats ? '本地已有 ' + attachStats.count + ' 个附件 · ' + (attachStats.bytes / 1048576).toFixed(1) + ' MB' : '';
       const setAccounts = (next) => { void write('accounts', JSON.stringify(next)); };
       const hasAccounts = accounts.some((a) => a && a.enabled !== false);
       const hasAnyAccounts = accounts.length > 0;
@@ -474,11 +474,11 @@ window.__ModuleLoader__.load({
             ),
             h('div', { className: 'msx-row' },
               h('div', null,
-                h('div', { className: 'msx-label' }, '自动检查更新'),
-                h('div', { className: 'msx-sub' }, '有变化才生成同步报告'),
+                h('div', { className: 'msx-label' }, '自动同步（每小时）'),
+                h('div', { className: 'msx-sub' }, '每小时后台同步；有变化才生成同步报告'),
               ),
               h('label', { style: { display: 'flex', alignItems: 'center' } },
-                h('input', { type: 'checkbox', checked: auto, disabled: busy, 'aria-label': '自动检查更新', onChange: (e) => void write('autoSync', e.target.checked) }),
+                h('input', { type: 'checkbox', checked: auto, disabled: busy, 'aria-label': '自动同步（每小时）', onChange: (e) => void write('autoSync', e.target.checked) }),
               ),
             ),
             h('div', { className: 'msx-row' },
