@@ -131,6 +131,7 @@ window.__ModuleLoader__.load({
         className: 'msx-footer-action',
         title: meta.empty ? '请先在设置中登录账号' : (meta.noEnabled ? '请先在设置中启用账号' : (running ? '正在同步，可在设置页查看进度' : '立即同步聊天历史')),
         'aria-label': meta.empty ? '未登录，请先在设置中登录账号' : (meta.noEnabled ? '未启用账号，请先在设置中启用' : (running ? '正在同步聊天历史' : '立即同步聊天历史')),
+        'aria-busy': running || undefined,
         disabled: running || meta.empty || meta.noEnabled,
         onClick: run,
         onMouseEnter: () => setHover(true),
