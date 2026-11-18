@@ -8,7 +8,7 @@ DeepSeek keeps chats in the web app and mobile app, but DSH cannot see them or c
 
 ## Features
 
-- One account, both clients: web and mobile-app history come from the same DeepSeek account; multiple accounts supported
+- Same account, both clients: web and mobile-app history come from the same DeepSeek account; multiple accounts supported
 - Months only: DSH workspaces are monthly, not split by category
 - Report and catalog: every sync writes a report; a category catalog adds a 50–100 character summary per chat
 - Append-only: same-title chats with different content are kept; backups before install; DSH-created sessions are never touched
