@@ -470,8 +470,8 @@ window.__ModuleLoader__.load({
                   h('input', { type: 'checkbox', checked: a.enabled !== false, disabled: busy, 'aria-label': '启用账号 ' + (a.nickname || a.name || a.prefix), onChange: (e) => patchRow(i, { enabled: e.target.checked }) }),
                   '启用',
                 ),
-                h('button', { className: 'msx-btn msx-btn-danger', disabled: busy, 'aria-label': confirmDel === i ? '取消删除' : '删除账号', onClick: () => setConfirmDel(confirmDel === i ? -1 : i) }, confirmDel === i ? '取消' : '删除'),
-                confirmDel === i ? h('button', { className: 'msx-btn msx-btn-danger', autoFocus: true, disabled: busy, 'aria-label': '确认删除账号', onClick: () => { setConfirmDel(-1); setAccounts(accounts.filter((_, j) => j !== i)); } }, '确认删除') : null,
+                h('button', { className: 'msx-btn msx-btn-danger', disabled: busy, 'aria-label': confirmDel === i ? '取消移除账号' : '移除账号', onClick: () => setConfirmDel(confirmDel === i ? -1 : i) }, confirmDel === i ? '取消' : '移除'),
+                confirmDel === i ? h('button', { className: 'msx-btn msx-btn-danger', autoFocus: true, disabled: busy, 'aria-label': '确认移除账号', onClick: () => { setConfirmDel(-1); setAccounts(accounts.filter((_, j) => j !== i)); } }, '确认移除') : null,
               )),
           ) : null,
           h('button', { className: 'msx-dashed', disabled: busy, 'aria-label': '登录新的 DeepSeek 账号', onClick: login }, '＋ 登录新账号'),
@@ -480,6 +480,7 @@ window.__ModuleLoader__.load({
             ? h('button', { className: 'msx-btn', style: { marginTop: 8 }, disabled: busy, onClick: () => void write('loginCancel', Date.now()) }, '取消登录')
             : null,
           loginStatus ? h('div', { className: 'msx-sub', style: { marginTop: 8 } }, loginStatus) : null,
+          h('div', { className: 'msx-sub', style: { marginTop: 8 } }, '移除账号只停止同步，不删除已归档会话。'),
         ),
 
         // 同步设置
