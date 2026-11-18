@@ -365,8 +365,8 @@ window.__ModuleLoader__.load({
       const loginStatus = value && value.loginStatus;
       const loginPending = !hasAccounts && /正在打开登录页|请在弹出的浏览器/.test(String(loginStatus || ''));
       const statusText = String((value && value.statusText) || '');
-      const actionVisible = /安装完成|安装失败|已安排安装|已取消本次安装|有会话待安装/.test(statusText);
-      const installFailed = /安装失败/.test(statusText);
+      const actionVisible = /安装完成|安装失败|安装调度失败|已安排安装|已取消本次安装|有会话待安装/.test(statusText);
+      const installFailed = /安装失败|安装调度失败/.test(statusText);
       const statusLine = value ? (msg || (running ? '正在同步…' : (value.status === 'error' ? String(value.statusText || '同步失败') : (actionVisible ? statusText : (value.lastSyncAt ? '已同步' : '尚未同步'))))) : (msg || '读取中…');
       const pendingText = /检测到新会话/.test(String((value && value.statusText) || ''));
       const pendingInstall = installPending || pendingText;
