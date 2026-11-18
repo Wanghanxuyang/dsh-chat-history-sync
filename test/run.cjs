@@ -22,6 +22,9 @@ if (new RegExp('mobile' + '_number|email', 'i').test(fs.readFileSync(path.join(r
 if (!Array.isArray(pkg.files) || !pkg.files.includes('lib')) fail('package files must include lib');
 if (!pkg.dependencies || !pkg.dependencies['puppeteer-core']) fail('puppeteer-core dependency missing');
 if (!pkg.engines || !pkg.engines.dsh) fail('DSH engine declaration missing');
+const indexText = fs.readFileSync(path.join(root, 'lib', 'index.js'), 'utf8');
+const clientText = fs.readFileSync(path.join(root, 'client', 'client.js'), 'utf8');
+if (!indexText.includes('accountsCleared') || !clientText.includes('accountsCleared')) fail('account clear path missing');
 }
 if (!/^\d+\.\d+\.\d+/.test(pkg.version)) fail('version is not semver: ' + pkg.version);
 if (pkg.license !== 'MIT') fail('license should be MIT');
