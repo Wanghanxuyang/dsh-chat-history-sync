@@ -451,7 +451,7 @@ window.__ModuleLoader__.load({
                     (health[a.name] || health[a.prefix]) && /失败|error|失效/.test(String(health[a.name] || health[a.prefix])) ? h('div', { className: 'msx-sub', style: { color: 'var(--dsw-alias-state-error)' } }, String(health[a.name] || health[a.prefix]).slice(0, 80)) : null,
                   ),
                 ),
-                h('label', { style: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--dsw-alias-label-secondary)', flex: '0 0 auto' } },
+                h('label', { title: '账号简称会作为会话标题前缀，修改会重命名已生成的会话', style: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--dsw-alias-label-secondary)', flex: '0 0 auto' } },
                   h('span', null, '简称：'),
                   h(EditableField, {
                     value: a.prefix || '', placeholder: a.name || '自动', label: '账号简称', disabled: busy, width: 110,
