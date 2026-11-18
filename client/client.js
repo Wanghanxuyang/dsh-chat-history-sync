@@ -88,8 +88,25 @@ window.__ModuleLoader__.load({
 
     function FooterEntry({ wide }) {
       const [busy, setBusy] = React.useState(false);
+      const [meta, setMeta] = React.useState({ running: false, pending: false });
+      React.useEffect(() => {
+        let alive = true;
+        const tick = async () => {
+          try {
+            const res = await clientCtx.remote.settings.describe();
+            const doc = res && res.ok ? res.value : null;
+            const list = (doc && doc.namespaces) || [];
+            const ns = list.find((n) => n.ns === NS) || list.find((n) => String(n.ns).endsWith(':' + NS) || String(n.ns).endsWith('/' + NS));
+            if (alive && ns) setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending) });
+          } catch (e) {}
+        };
+        tick();
+        const id = setInterval(tick, 5000);
+        return () => { alive = false; clearInterval(id); };
+      }, []);
+      const running = busy || meta.running;
       const run = async () => {
-        if (busy) return;
+        if (running) return;
         setBusy(true);
         try {
           const res = await clientCtx.remote.settings.describe();
@@ -105,12 +122,12 @@ window.__ModuleLoader__.load({
       return h('button', {
         type: 'button',
         className: 'msx-footer-action',
-        title: busy ? '已开始同步，可在设置页查看进度' : '立即同步聊天历史',
-        'aria-label': busy ? '已开始同步聊天历史' : '立即同步聊天历史',
-        disabled: busy,
+        title: running ? '正在同步，可在设置页查看进度' : '立即同步聊天历史',
+        'aria-label': running ? '正在同步聊天历史' : '立即同步聊天历史',
+        disabled: running,
         onClick: run,
         style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: 'transparent', color: 'var(--dsw-alias-label-secondary)', font: 'inherit', fontSize: 13, cursor: 'pointer' },
-      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1 } }, busy ? '…' : '↻'), wide ? h('span', null, busy ? '已开始同步' : '同步聊天历史') : null);
+      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, running ? '…' : '↻', meta.pending && !running ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning)' } }) : null), wide ? h('span', null, running ? '正在同步' : (meta.pending ? '待安装' : '同步聊天历史')) : null);
     }
 
     function Card() {
@@ -328,7 +345,7 @@ window.__ModuleLoader__.load({
               h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running, 'aria-label': running ? '同步进行中' : '立即同步聊天历史', onClick: trigger }, running ? '同步中…' : '立即同步'),
             ),
           ),
-          h('div', { className: 'msx-sub', style: { padding: '0 16px 12px' } }, running ? '正在后台同步，可以离开此页；完成后结果会写入报告。' : '同步在后台运行，可以离开此页；有新会话会提示安装。'),
+          h('div', { className: 'msx-sub', style: { padding: '0 16px 12px' } }, running ? '正在后台同步，可以离开此页；完成后结果会写入报告。' : '同步在后台进行，可以离开此页；有新会话会提示安装。'),
           running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuetext': '同步进行中' }, h('i', null)) : null,
           (value && value.lastSyncAt) ? h('div', { className: 'msx-sub', style: { paddingTop: 6 } },
             '上次同步 ' + new Date(value.lastSyncAt).toLocaleString() + (value.lastSyncResult ? ' · ' + String(value.lastSyncResult).slice(0, 80) : ''),
