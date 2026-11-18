@@ -226,7 +226,8 @@ window.__ModuleLoader__.load({
             } else if (v.status === 'done') {
               setStartedAt(0);
               try { window.localStorage.removeItem(START_KEY); } catch (e) {}
-              setMsg('尚未同步');
+              const doneText = String(v.statusText || '');
+              setMsg(doneText && !/^同步完成/.test(doneText) ? doneText : '');
             } else if (v.status === 'error') {
               setStartedAt(0);
               try { window.localStorage.removeItem(START_KEY); } catch (e) {}
@@ -312,7 +313,7 @@ window.__ModuleLoader__.load({
       const setAccounts = (next) => { void write('accounts', JSON.stringify(next)); };
       const patchRow = (i, patch) => { const n = accounts.slice(); n[i] = { ...n[i], ...patch }; setAccounts(n); };
       const loginStatus = value && value.loginStatus;
-      const statusLine = msg || (running ? '正在同步…' : '尚未同步');
+      const statusLine = msg || (running ? '正在同步…' : (value && value.lastSyncAt ? '已同步' : '尚未同步'));
       const pendingText = /检测到新会话/.test(String((value && value.statusText) || ''));
       const needInstall = installPending || pendingText;
       const shownStatus = (!running && pendingText) ? '同步完成 · 待确认安装' : statusLine;
@@ -446,11 +447,11 @@ window.__ModuleLoader__.load({
             ),
             h('div', { className: 'msx-row' },
               h('div', { style: { minWidth: 0 } },
-                h('div', { className: 'msx-label' }, '报告会话 ID'),
-                h('div', { className: 'msx-sub' }, '写入指定会话；留空则自动创建'),
+                h('div', { className: 'msx-label' }, '报告会话（可选）'),
+                h('div', { className: 'msx-sub' }, '一般不用填：自动复用「聊天历史同步」报告；只有想指定别的会话才填 ID'),
               ),
               h('input', {
-                className: 'msx-input', value: (value && value.reportTargetSessionId) || '', placeholder: 'session-…', disabled: busy,
+                className: 'msx-input', value: (value && value.reportTargetSessionId) || '', placeholder: '自动管理', disabled: busy,
                 onChange: (e) => void write('reportTargetSessionId', e.target.value), style: { flex: '0 0 200px' },
               }),
             ),
