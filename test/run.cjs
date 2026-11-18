@@ -38,6 +38,7 @@ if (!indexText.includes('persistSettings failed')) fail('settings write retry/lo
 if (!indexText.includes("Microsoft', 'Edge'")) fail('per-user Edge path missing');
 if (!indexText.includes('AddSeconds(30)')) fail('installer process wait missing');
 if (!indexText.includes('opts.failed')) fail('afterSync failure guard missing');
+if (!indexText.includes('$LASTEXITCODE = $null')) fail('installer exit reset missing');
 }
 if (!/^\d+\.\d+\.\d+/.test(pkg.version)) fail('version is not semver: ' + pkg.version);
 if (pkg.license !== 'MIT') fail('license should be MIT');
