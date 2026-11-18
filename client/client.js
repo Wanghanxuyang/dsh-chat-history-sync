@@ -371,7 +371,7 @@ window.__ModuleLoader__.load({
             ),
             h('div', { style: { display: 'flex', gap: 8, flexShrink: 0 } },
               running ? h('button', { className: 'msx-btn', disabled: busy, 'aria-label': '取消当前同步', onClick: () => void write('cancelSync', true) }, '取消') : null,
-              h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running || !hasAccounts, 'aria-label': !hasAccounts ? (hasAnyAccounts ? '请先启用账号' : '请先登录账号') : (running ? '同步进行中' : '立即同步聊天历史'), onClick: trigger }, !hasAccounts ? (hasAnyAccounts ? '先启用' : '先登录') : (running ? '同步中…' : '立即同步')),
+              h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running || (hasAnyAccounts && !hasAccounts), 'aria-label': !hasAccounts ? (hasAnyAccounts ? '请先启用账号' : '登录 DeepSeek 账号') : (running ? '同步进行中' : '立即同步聊天历史'), onClick: !hasAccounts && !hasAnyAccounts ? login : trigger }, !hasAccounts ? (hasAnyAccounts ? '先启用' : '登录账号') : (running ? '同步中…' : '立即同步')),
             ),
           ),
           running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuetext': '同步进行中' }, h('i', null)) : null,
