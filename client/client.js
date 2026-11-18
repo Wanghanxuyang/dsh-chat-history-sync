@@ -404,7 +404,7 @@ window.__ModuleLoader__.load({
               h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running || !hasAccounts || !value || loginPending, 'aria-label': !value ? '加载中' : (loginPending ? '等待浏览器登录' : (!hasAccounts ? (hasAnyAccounts ? '请先启用账号' : '登录 DeepSeek 账号') : (running ? '同步进行中' : '立即同步聊天历史'))), onClick: !hasAccounts && !hasAnyAccounts ? login : trigger }, !value ? '加载中' : (loginPending ? '登录中…' : (!hasAccounts ? (hasAnyAccounts ? '先启用' : '登录账号') : (running ? '同步中…' : '立即同步')))),
             ),
           ),
-          running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuetext': '同步进行中' }, h('i', null)) : null,
+          running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuetext': progressMatch ? '同步 ' + progressMatch[1] + '/' + progressMatch[2] : '同步进行中' }, h('i', null)) : null,
           (value && (value.lastSyncAt || value.reportText || installDeferred)) ? h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderTop: '1px solid var(--dsw-alias-border-l1)', padding: '9px 16px', flexWrap: 'wrap' } },
             h('span', { className: 'msx-sub', style: { marginTop: 0, color: installDeferred ? 'var(--dsw-alias-state-warning, #b86e00)' : undefined } }, installDeferred ? '有会话待安装' : (value.lastSyncAt ? '上次同步 ' + fmtTime(value.lastSyncAt) : '还没有同步记录')),
             h('div', { style: { display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 } },
