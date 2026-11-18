@@ -33,6 +33,7 @@ dsh plugin add dsh-chat-history-sync
 - 同步时只访问 `chat.deepseek.com`，不发送到其它服务
 - token 只存本机，DPAPI 加密
 - 不采集手机号/邮箱；账号只用 userId / token 去重
+- 安全说明：[SECURITY.md](SECURITY.md)
 - 无遥测、无统计上报
 
 ## 范围
