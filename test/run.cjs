@@ -18,6 +18,7 @@ if (!fs.existsSync(path.join(root, 'README.en.md'))) fail('README.en.md missing'
 if (!fs.existsSync(path.join(root, 'SECURITY.md'))) fail('SECURITY.md missing');
 if (!fs.existsSync(path.join(root, 'docs', 'RELEASE.md'))) fail('release checklist missing');
 if (!pkg.files.includes('SECURITY.md')) fail('package files missing SECURITY.md');
+if (!pkg.files.includes('docs')) fail('package files missing docs');
 if (!fs.existsSync(path.join(root, 'locale', 'zh.json'))) fail('locale zh missing');
 if (!fs.existsSync(path.join(root, 'lib', 'browser', 'login-save.mjs'))) fail('bundled login script missing');
 if (!fs.existsSync(path.join(root, 'lib', 'engine', 'install.cjs'))) fail('bundled installer missing');
