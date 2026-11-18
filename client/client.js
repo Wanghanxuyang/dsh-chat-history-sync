@@ -251,8 +251,10 @@ window.__ModuleLoader__.load({
         setBusy(true);
         try {
           const r = await clientCtx.remote.settings.mutate(nsRef.current, [{ op: 'set', path: [field], value: v }], revision);
-          if (r && r.ok) { setRevision(r.value.revision); lastRev.current = r.value.revision; setValue(r.value.value || {}); setMsg('已保存'); }
-          else { setMsg('保存被拒绝'); void load(); }
+          if (r && r.ok) {
+            setRevision(r.value.revision); lastRev.current = r.value.revision; setValue(r.value.value || {}); setMsg('已保存');
+            setTimeout(() => setMsg((cur) => (cur === '已保存' ? '' : cur)), 1800);
+          } else { setMsg('保存被拒绝'); void load(); }
         } catch (e) { setMsg('保存失败：' + (e && e.message)); }
         setBusy(false);
       };
