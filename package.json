@@ -24,6 +24,7 @@
   ],
   "scripts": {
     "test": "node test/run.cjs && node test/catalog.test.cjs",
+    "test:e2e": "node test/e2e-smoke.cjs",
     "check:sessions": "node test/session-health.cjs"
   },
   "peerDependencies": {
