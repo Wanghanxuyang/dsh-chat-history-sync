@@ -86,6 +86,33 @@ window.__ModuleLoader__.load({
       }
     `;
 
+    function FooterEntry({ wide }) {
+      const [busy, setBusy] = React.useState(false);
+      const run = async () => {
+        if (busy) return;
+        setBusy(true);
+        try {
+          const res = await clientCtx.remote.settings.describe();
+          const doc = res && res.ok ? res.value : null;
+          const list = (doc && doc.namespaces) || [];
+          const ns = list.find((n) => n.ns === NS) || list.find((n) => String(n.ns).endsWith(':' + NS) || String(n.ns).endsWith('/' + NS));
+          if (!ns) return;
+          await clientCtx.remote.settings.mutate(ns.ns, [{ op: 'set', path: ['runNow'], value: true }], ns.revision || 0);
+        } catch (e) {} finally {
+          setTimeout(() => setBusy(false), 1200);
+        }
+      };
+      return h('button', {
+        type: 'button',
+        className: 'msx-footer-action',
+        title: '立即同步聊天历史',
+        'aria-label': '立即同步聊天历史',
+        disabled: busy,
+        onClick: run,
+        style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: 'transparent', color: 'var(--dsw-alias-label-secondary)', font: 'inherit', fontSize: 13, cursor: 'pointer' },
+      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1 } }, busy ? '…' : '↻'), wide ? h('span', null, busy ? '正在触发同步' : '同步聊天历史') : null);
+    }
+
     function Card() {
       const [value, setValue] = React.useState(null);
       const [revision, setRevision] = React.useState(0);
@@ -301,6 +328,7 @@ window.__ModuleLoader__.load({
               h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running, 'aria-label': running ? '同步进行中' : '立即同步聊天历史', onClick: trigger }, running ? '同步中…' : '立即同步'),
             ),
           ),
+          h('div', { className: 'msx-sub', style: { padding: '0 16px 12px' } }, running ? '正在后台同步，可以离开此页；完成后结果会写入报告。' : '同步在后台运行，可以离开此页；有新会话会提示安装。'),
           running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuetext': '同步进行中' }, h('i', null)) : null,
           (value && value.lastSyncAt) ? h('div', { className: 'msx-sub', style: { paddingTop: 6 } },
             '上次同步 ' + new Date(value.lastSyncAt).toLocaleString() + (value.lastSyncResult ? ' · ' + String(value.lastSyncResult).slice(0, 80) : ''),
@@ -466,6 +494,12 @@ window.__ModuleLoader__.load({
           order: 16,
           label: '聊天历史同步',
         }, Card));
+        ctx.slots.inject('sidebar.footer.action', () => ctx.slots.register({
+          name: 'sidebar.footer.action',
+          id: 'chat-history-sync',
+          order: 27,
+          label: () => '同步聊天历史',
+        }, FooterEntry));
       },
     };
   },
