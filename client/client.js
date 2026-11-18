@@ -344,10 +344,11 @@ window.__ModuleLoader__.load({
       const hasAnyAccounts = accounts.length > 0;
       const patchRow = (i, patch) => { const n = accounts.slice(); n[i] = { ...n[i], ...patch }; setAccounts(n); };
       const loginStatus = value && value.loginStatus;
+      const loginPending = !hasAccounts && /正在打开登录页|请在弹出的浏览器/.test(String(loginStatus || ''));
       const statusLine = value ? (msg || (running ? '正在同步…' : (value.status === 'error' ? String(value.statusText || '同步失败') : (value.lastSyncAt ? '已同步' : '尚未同步')))) : (msg || '读取中…');
       const pendingText = /检测到新会话/.test(String((value && value.statusText) || ''));
       const needInstall = !installDeferred && (installPending || pendingText);
-      const shownStatus = (!running && pendingText) ? '同步完成 · 待确认安装' : statusLine;
+      const shownStatus = loginPending ? '等待登录…' : ((!running && pendingText) ? '同步完成 · 待确认安装' : statusLine);
       const failed = !!(value && (value.status === 'error' || /失败|失效/.test(String(shownStatus || ''))));
       const fmtTime = (ts) => {
         try { return new Date(ts).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
@@ -370,11 +371,11 @@ window.__ModuleLoader__.load({
                 h('span', { role: 'status', 'aria-live': 'polite', style: { fontSize: 14, fontWeight: 600, color: failed ? 'var(--dsw-alias-state-error)' : 'var(--dsw-alias-label-primary)' } }, shownStatus),
                 !running ? h('i', { 'aria-hidden': 'true', style: { display: 'inline-block', flex: '0 0 auto', width: 6, height: 6, borderRadius: '50%', background: failed ? 'var(--dsw-alias-state-error, #e5484d)' : (needInstall ? 'var(--dsw-alias-state-warning, #f5a623)' : (hasAccounts ? 'var(--dsw-alias-state-success, #30a46c)' : 'var(--dsw-alias-label-tertiary, #8b8f98)')) } }) : null,
               ),
-              h('div', { className: 'msx-sub' }, !value ? '正在读取同步设置…' : (running ? '后台同步中，可离开此页。' : (!hasAccounts ? (hasAnyAccounts ? '先启用账号，再同步。' : '先登录账号，再同步。') : (failed ? '可重试，或查看报告。' : '同步时可离开此页。')))),
+              h('div', { className: 'msx-sub' }, !value ? '正在读取同步设置…' : (loginPending ? '请在弹出的浏览器完成登录。' : (running ? '后台同步中，可离开此页。' : (!hasAccounts ? (hasAnyAccounts ? '先启用账号，再同步。' : '先登录账号，再同步。') : (failed ? '可重试，或查看报告。' : '同步时可离开此页。'))))),
             ),
             h('div', { style: { display: 'flex', gap: 8, flexShrink: 0 } },
               running ? h('button', { className: 'msx-btn', disabled: busy, 'aria-label': '取消当前同步', onClick: () => void write('cancelSync', true) }, '取消') : null,
-              h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running || !hasAccounts || !value, 'aria-label': !value ? '加载中' : (!hasAccounts ? (hasAnyAccounts ? '请先启用账号' : '登录 DeepSeek 账号') : (running ? '同步进行中' : '立即同步聊天历史')), onClick: !hasAccounts && !hasAnyAccounts ? login : trigger }, !value ? '加载中' : (!hasAccounts ? (hasAnyAccounts ? '先启用' : '登录账号') : (running ? '同步中…' : '立即同步'))),
+              h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running || !hasAccounts || !value || loginPending, 'aria-label': !value ? '加载中' : (loginPending ? '等待浏览器登录' : (!hasAccounts ? (hasAnyAccounts ? '请先启用账号' : '登录 DeepSeek 账号') : (running ? '同步进行中' : '立即同步聊天历史'))), onClick: !hasAccounts && !hasAnyAccounts ? login : trigger }, !value ? '加载中' : (loginPending ? '登录中…' : (!hasAccounts ? (hasAnyAccounts ? '先启用' : '登录账号') : (running ? '同步中…' : '立即同步')))),
             ),
           ),
           running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuetext': '同步进行中' }, h('i', null)) : null,
