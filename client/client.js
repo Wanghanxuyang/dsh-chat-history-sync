@@ -382,7 +382,7 @@ window.__ModuleLoader__.load({
         needInstall ? h('div', { className: 'msx-card', style: { marginTop: 10 } },
           h('div', { style: { minWidth: 0 } },
             h('div', { className: 'msx-label' }, '检测到新会话'),
-            h('div', { className: 'msx-sub' }, '是否现在安装到工作区？DSH 会重启一次。'),
+            h('div', { className: 'msx-sub' }, '是否现在安装到工作区？DSH 会重启一次；请先完成当前回复。'),
           ),
           h('div', { style: { display: 'flex', gap: 8, marginTop: 10 } },
             h('button', { className: 'msx-btn msx-btn-primary', disabled: busy, 'aria-label': '立即安装到工作区并重启 DSH', onClick: () => void write('installNow', true) }, '立即安装'),
