@@ -1,6 +1,6 @@
 {
   "name": "dsh-chat-history-sync",
-  "description": "Sync DeepSeek account chat history (web + mobile app) into DeepSeek Harness as native sessions, organized by month with a searchable category catalog and zero-loss guarantees. Local-first, Windows-only, DPAPI-encrypted tokens, no telemetry.",
+  "description": "把 DeepSeek 账号的网页端和手机 App 聊天记录同步进 DSH：按月份归档、生成分类报告、可继续对话。只增不减，不碰自建会话。Windows only，token 本机 DPAPI 加密，无遥测。",
   "version": "0.9.2",
   "type": "module",
   "main": "lib/index.js",
