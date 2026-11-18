@@ -322,8 +322,19 @@ window.__ModuleLoader__.load({
       const login = async () => {
         setBusy(true);
         try {
-          await clientCtx.remote.settings.mutate(nsRef.current, [{ op: 'set', path: ['loginRequest'], value: Date.now() }], revision);
-        } catch (e) {}
+          const ops = [{ op: 'set', path: ['loginRequest'], value: Date.now() }];
+          let r = await clientCtx.remote.settings.mutate(nsRef.current, ops, revision);
+          if (!r || !r.ok) {
+            const fresh = await findNs();
+            if (fresh) r = await clientCtx.remote.settings.mutate(nsRef.current, ops, fresh.revision);
+          }
+          if (r && r.ok) {
+            setRevision(r.value.revision);
+            setValue(r.value.value || {});
+          } else {
+            setMsg('登录触发失败，请重试');
+          }
+        } catch (e) { setMsg('登录触发失败：' + (e && e.message)); }
         setBusy(false);
       };
 
