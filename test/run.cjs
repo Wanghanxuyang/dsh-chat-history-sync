@@ -21,6 +21,7 @@ if (!fs.existsSync(path.join(root, 'locale', 'zh.json'))) fail('locale zh missin
 if (!fs.existsSync(path.join(root, 'lib', 'browser', 'login-save.mjs'))) fail('bundled login script missing');
 if (!fs.existsSync(path.join(root, 'lib', 'engine', 'install.cjs'))) fail('bundled installer missing');
 if (new RegExp('mobile' + '_number|email', 'i').test(fs.readFileSync(path.join(root, 'lib', 'browser', 'login-save.mjs'), 'utf8'))) fail('login script still collects phone/email');
+if (/body\s*:|console\s*:/.test(fs.readFileSync(path.join(root, 'lib', 'browser', 'login-save.mjs'), 'utf8'))) fail('login result still writes page/console data');
 if (!Array.isArray(pkg.files) || !pkg.files.includes('lib')) fail('package files must include lib');
 if (!pkg.dependencies || !pkg.dependencies['puppeteer-core']) fail('puppeteer-core dependency missing');
 if (!pkg.engines || !pkg.engines.dsh) fail('DSH engine declaration missing');
