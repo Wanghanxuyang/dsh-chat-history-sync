@@ -170,7 +170,7 @@ window.__ModuleLoader__.load({
         const list = (doc && doc.namespaces) || [];
         const exact = list.find((n) => n.ns === NS);
         if (exact) { nsRef.current = exact.ns; return exact; }
-        // 宿主 0.2.x 的命名空间是 Loader 入口 id（如 include:dsh-memory-sync）
+        // 宿主 0.2.x 的命名空间是 Loader 入口 id（如 include:dsh-chat-history-sync）
         const bySuffix = list.find((n) => String(n.ns).endsWith(':' + NS) || String(n.ns).endsWith('/' + NS));
         if (bySuffix) nsRef.current = bySuffix.ns;
         return bySuffix || null;
