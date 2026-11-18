@@ -8,6 +8,7 @@ const checks = [
   ["aria-expanded", /aria-expanded/],
   ["role=status", /role: 'status'/],
   ["aria-live", /aria-live/],
+  ["aria-busy", /aria-busy/],
   ["focus-visible", /focus-visible/],
   ["progress aria", /aria-valuetext/],
   ["narrow breakpoint", /@media \(max-width:560px\)/],
