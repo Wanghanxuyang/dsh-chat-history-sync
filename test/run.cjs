@@ -31,6 +31,7 @@ const indexText = fs.readFileSync(path.join(root, 'lib', 'index.js'), 'utf8');
 const clientText = fs.readFileSync(path.join(root, 'client', 'client.js'), 'utf8');
 if (!indexText.includes('accountsCleared') || !clientText.includes('accountsCleared')) fail('account clear path missing');
 if (!indexText.includes("runNow: false, status: 'running'")) fail('runNow edge not reset');
+if (!indexText.includes('pending.failed')) fail('install failure marker not read');
 }
 if (!/^\d+\.\d+\.\d+/.test(pkg.version)) fail('version is not semver: ' + pkg.version);
 if (pkg.license !== 'MIT') fail('license should be MIT');
