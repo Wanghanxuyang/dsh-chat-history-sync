@@ -47,6 +47,7 @@ for (const f of ['catalog.cjs', 'export.cjs']) if (!fs.readFileSync(path.join(ro
 if (!clientText.includes('移除账号只停止同步')) fail('account removal note missing');
 if (!fs.readFileSync(path.join(root, 'README.md'), 'utf8').includes('SECURITY.md')) fail('README security link missing');
 if (!fs.readFileSync(path.join(root, 'README.en.md'), 'utf8').includes('SECURITY.md')) fail('README.en security link missing');
+if (!fs.readFileSync(path.join(root, 'SECURITY.md'), 'utf8').includes('does not silently destroy history')) fail('SECURITY removal semantics missing');
 }
 if (!/^\d+\.\d+\.\d+/.test(pkg.version)) fail('version is not semver: ' + pkg.version);
 if (pkg.license !== 'MIT') fail('license should be MIT');
