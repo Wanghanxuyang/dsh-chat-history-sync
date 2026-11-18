@@ -516,7 +516,7 @@ window.__ModuleLoader__.load({
               h('label', { className: 'msx-row', style: { cursor: 'pointer' } },
                 h('div', null,
                   h('div', { className: 'msx-label' }, '系统通知'),
-                  h('div', { className: 'msx-sub' }, '仅在失败或需要确认时提醒'),
+                  h('div', { className: 'msx-sub' }, '仅在失败、待安装或安装状态变化时提醒'),
                 ),
                 h('input', { type: 'checkbox', checked: notifyOn, disabled: busy, 'aria-label': '系统通知', onChange: (e) => void write('notifyEnabled', e.target.checked) }),
               ),
