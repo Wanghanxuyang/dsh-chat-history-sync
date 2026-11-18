@@ -12,6 +12,8 @@ for (const key of ['name', 'version', 'description', 'license', 'main', 'files']
   if (!pkg[key]) fail('package.json missing ' + key);
 if (!pkg.repository || !pkg.repository.url) fail('package.json missing repository');
 if (!pkg.homepage) fail('package.json missing homepage');
+if (!fs.existsSync(path.join(root, 'README.en.md'))) fail('README.en.md missing');
+if (!fs.existsSync(path.join(root, 'locale', 'zh.json'))) fail('locale zh missing');
 }
 if (!/^\d+\.\d+\.\d+/.test(pkg.version)) fail('version is not semver: ' + pkg.version);
 if (pkg.license !== 'MIT') fail('license should be MIT');
