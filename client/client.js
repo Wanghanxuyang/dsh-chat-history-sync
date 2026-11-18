@@ -360,7 +360,7 @@ window.__ModuleLoader__.load({
 
         // 同步状态 + 立即同步
         h('div', { className: 'msx-card' },
-          h('div', { style: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, padding: '14px 16px 12px' } },
+          h('div', { style: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, padding: '14px 16px 12px', flexWrap: 'wrap' } },
             h('div', { style: { minWidth: 0 } },
               h('div', { style: { display: 'flex', alignItems: 'center', gap: 8, minHeight: 20 } },
                 h('span', { className: 'msx-label' }, running ? '同步中' : '同步状态'),
@@ -375,7 +375,7 @@ window.__ModuleLoader__.load({
             ),
           ),
           running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuetext': '同步进行中' }, h('i', null)) : null,
-          (value && (value.lastSyncAt || value.reportText)) ? h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderTop: '1px solid var(--dsw-alias-border-l1)', padding: '9px 16px' } },
+          (value && (value.lastSyncAt || value.reportText)) ? h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderTop: '1px solid var(--dsw-alias-border-l1)', padding: '9px 16px', flexWrap: 'wrap' } },
             h('span', { className: 'msx-sub', style: { marginTop: 0 } }, value.lastSyncAt ? '上次同步 ' + fmtTime(value.lastSyncAt) : '还没有同步记录'),
             (value.reportText) ? h('button', { className: 'msx-linkbtn', style: { flexShrink: 0 }, 'aria-expanded': reportOpen, onClick: () => setReportOpen(!reportOpen) }, reportOpen ? '收起报告' : '查看报告') : null,
           ) : null,
