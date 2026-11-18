@@ -272,10 +272,11 @@ window.__ModuleLoader__.load({
         return () => clearInterval(t);
       }, []);
 
-      const write = async (field, v) => {
+      const write = async (field, v, clearAccounts = false) => {
         setBusy(true);
         try {
           const ops = [{ op: 'set', path: [field], value: v }];
+          if (typeof clearAccounts === 'boolean') ops.push({ op: 'set', path: ['accountsCleared'], value: clearAccounts });
           let r = await clientCtx.remote.settings.mutate(nsRef.current, ops, revision);
           if (!r || !r.ok) {
             // 同步进度会频繁 bump revision；重新读取一次再重试，避免编辑被静默回滚
@@ -357,7 +358,7 @@ window.__ModuleLoader__.load({
       let attachStats = null;
       try { attachStats = JSON.parse((value && value.attachmentStats) || 'null'); } catch (e) { attachStats = null; }
       const attachText = attachStats ? '本地已有 ' + attachStats.count + ' 个附件 · ' + (attachStats.bytes / 1048576).toFixed(1) + ' MB' : '';
-      const setAccounts = (next) => { void write('accounts', JSON.stringify(next)); };
+      const setAccounts = (next) => { void write('accounts', JSON.stringify(next), !next.length); };
       const hasAccounts = accounts.some((a) => a && a.enabled !== false);
       const hasAnyAccounts = accounts.length > 0;
       const patchRow = (i, patch) => { const n = accounts.slice(); n[i] = { ...n[i], ...patch }; setAccounts(n); };
