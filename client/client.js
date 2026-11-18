@@ -338,6 +338,7 @@ window.__ModuleLoader__.load({
       const attachText = attachStats ? '预计 ' + attachStats.count + ' 个附件 · ' + (attachStats.bytes / 1048576).toFixed(1) + ' MB' : '';
       const setAccounts = (next) => { void write('accounts', JSON.stringify(next)); };
       const hasAccounts = accounts.some((a) => a && a.enabled !== false);
+      const hasAnyAccounts = accounts.length > 0;
       const patchRow = (i, patch) => { const n = accounts.slice(); n[i] = { ...n[i], ...patch }; setAccounts(n); };
       const loginStatus = value && value.loginStatus;
       const statusLine = msg || (running ? '正在同步…' : (value && value.status === 'error' ? String(value.statusText || '同步失败') : (value && value.lastSyncAt ? '已同步' : '尚未同步')));
@@ -366,10 +367,10 @@ window.__ModuleLoader__.load({
             ),
             h('div', { style: { display: 'flex', gap: 8 } },
               running ? h('button', { className: 'msx-btn', disabled: busy, 'aria-label': '取消当前同步', onClick: () => void write('cancelSync', true) }, '取消') : null,
-              h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running || !hasAccounts, 'aria-label': !hasAccounts ? '请先登录账号' : (running ? '同步进行中' : '立即同步聊天历史'), onClick: trigger }, !hasAccounts ? '先登录' : (running ? '同步中…' : '立即同步')),
+              h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running || !hasAccounts, 'aria-label': !hasAccounts ? (hasAnyAccounts ? '请先启用账号' : '请先登录账号') : (running ? '同步进行中' : '立即同步聊天历史'), onClick: trigger }, !hasAccounts ? (hasAnyAccounts ? '先启用' : '先登录') : (running ? '同步中…' : '立即同步')),
             ),
           ),
-          h('div', { className: 'msx-sub', style: { padding: '0 16px 12px' } }, running ? '后台同步中，可离开此页。' : (hasAccounts ? '同步时可离开此页。' : '先登录账号，再同步。')),
+          h('div', { className: 'msx-sub', style: { padding: '0 16px 12px' } }, running ? '后台同步中，可离开此页。' : (!hasAccounts ? (hasAnyAccounts ? '先启用账号，再同步。' : '先登录账号，再同步。') : '同步时可离开此页。')),
           running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuetext': '同步进行中' }, h('i', null)) : null,
           (value && value.lastSyncAt) ? h('div', { className: 'msx-sub', style: { paddingTop: 6 } },
             '上次同步 ' + fmtTime(value.lastSyncAt),
