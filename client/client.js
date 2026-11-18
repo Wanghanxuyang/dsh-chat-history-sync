@@ -382,10 +382,9 @@ window.__ModuleLoader__.load({
           ),
           accOpen ? h('div', { className: 'msx-card', style: { marginTop: 8 } },
             accounts.length === 0
-              ? h('div', null,
-                h('div', { className: 'msx-muted' }, '还没有账号。登录后会自动保存 token（只存本机），并同步该账号的网页端历史。'),
-                h('div', { className: 'msx-muted', style: { marginTop: 4 } }, '不会动 DSH 自建会话；同名但内容不同的会话会保留。'),
-                h('div', { className: 'msx-sub', style: { marginTop: 8 } }, '开始使用：1）登录新账号  2）点「立即同步」  3）有新会话时点「立即安装」'),
+              ? h('div', { style: { padding: '14px 16px' } },
+                h('div', { className: 'msx-muted' }, '还没有账号。登录后自动同步该账号的聊天历史。'),
+                h('div', { className: 'msx-sub', style: { marginTop: 6 } }, 'DSH 自建会话不会被改动。'),
               )
               : accounts.map((a, i) => h('div', { key: i, className: 'msx-row', style: { gap: 10 } },
                 h('div', { style: { display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: '1 1 auto' } },
@@ -468,9 +467,9 @@ window.__ModuleLoader__.load({
                   h('div', { className: 'msx-label' }, '报告会话'),
                   h('div', { className: 'msx-sub' }, '留空自动管理'),
                 ),
-                h('input', {
-                  className: 'msx-input', value: (value && value.reportTargetSessionId) || '', placeholder: '自动管理', disabled: busy,
-                  onChange: (e) => void write('reportTargetSessionId', e.target.value), style: { flex: '0 0 180px' },
+                h(EditableField, {
+                  value: (value && value.reportTargetSessionId) || '', placeholder: '自动管理', label: '报告会话 ID', disabled: busy, width: 180,
+                  onCommit: (v) => void write('reportTargetSessionId', v),
                 }),
               ),
               h('div', { className: 'msx-row' },
