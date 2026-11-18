@@ -22,6 +22,7 @@ if (new RegExp('mobile' + '_number|email', 'i').test(fs.readFileSync(path.join(r
 if (!Array.isArray(pkg.files) || !pkg.files.includes('lib')) fail('package files must include lib');
 if (!pkg.dependencies || !pkg.dependencies['puppeteer-core']) fail('puppeteer-core dependency missing');
 if (!pkg.engines || !pkg.engines.dsh) fail('DSH engine declaration missing');
+if (!fs.readFileSync(path.join(root, 'CHANGELOG.md'), 'utf8').includes(pkg.version)) fail('CHANGELOG missing current version');
 const indexText = fs.readFileSync(path.join(root, 'lib', 'index.js'), 'utf8');
 const clientText = fs.readFileSync(path.join(root, 'client', 'client.js'), 'utf8');
 if (!indexText.includes('accountsCleared') || !clientText.includes('accountsCleared')) fail('account clear path missing');
