@@ -378,7 +378,7 @@ window.__ModuleLoader__.load({
           ),
           running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuetext': '同步进行中' }, h('i', null)) : null,
           (value && (value.lastSyncAt || value.reportText || installDeferred)) ? h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderTop: '1px solid var(--dsw-alias-border-l1)', padding: '9px 16px', flexWrap: 'wrap' } },
-            h('span', { className: 'msx-sub', style: { marginTop: 0 } }, installDeferred ? '有会话待安装' : (value.lastSyncAt ? '上次同步 ' + fmtTime(value.lastSyncAt) : '还没有同步记录')),
+            h('span', { className: 'msx-sub', style: { marginTop: 0, color: installDeferred ? 'var(--dsw-alias-state-warning, #b86e00)' : undefined } }, installDeferred ? '有会话待安装' : (value.lastSyncAt ? '上次同步 ' + fmtTime(value.lastSyncAt) : '还没有同步记录')),
             h('div', { style: { display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 } },
               installDeferred ? h('button', { className: 'msx-linkbtn', disabled: busy, onClick: () => void write('installNow', true) }, '安装') : null,
               (value.reportText) ? h('button', { className: 'msx-linkbtn', style: { flexShrink: 0 }, 'aria-expanded': reportOpen, onClick: () => setReportOpen(!reportOpen) }, reportOpen ? '收起报告' : '查看报告') : null,
