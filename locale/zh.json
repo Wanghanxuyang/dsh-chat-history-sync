@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "聊天历史同步",
+    "description": "把 DeepSeek 账号在网页端和手机 App 的聊天历史同步进 DeepSeek Harness：按月组织、分类报告、只增不减；Windows-only，token 用 DPAPI 加密，无遥测。",
+    "detail": "docs/DETAIL.md"
+  }
+}

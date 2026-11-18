@@ -1,0 +1,4 @@
+# dsh-chat-history-sync bundle patch: 聊天历史同步插件
+- insert:
+    - id: dsh-chat-history-sync
+      name: dsh-chat-history-sync

@@ -1,0 +1,79 @@
+{
+  "name": "dsh-chat-history-sync",
+  "description": "Sync DeepSeek account chat history (web + mobile app) into DeepSeek Harness as native sessions, organized by month with a searchable category catalog and zero-loss guarantees. Local-first, Windows-only, DPAPI-encrypted tokens, no telemetry.",
+  "version": "0.9.2",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./client/client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.png",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "client",
+    "locale",
+    "docs",
+    "cordis.patch.yml",
+    "icon.png",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node test/run.cjs && node test/catalog.test.cjs",
+    "check:sessions": "node test/session-health.cjs"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-settings": "^0.1.0-rc.7 || ^0.1.1-rc.2 || ^0.1.2-alpha.2 || ^0.2.0-rc.1 || ^0.2.1-alpha.3 || ^0.2.1-rc.1",
+    "@deepseek-ai/schemastery": "^3.18.1"
+  },
+  "engines": {
+    "node": ">=22.5"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "cordis",
+    "plugin",
+    "deepseek",
+    "chat",
+    "history",
+    "sync",
+    "archive",
+    "web",
+    "mobile",
+    "tongbu",
+    "记忆",
+    "网页",
+    "手机",
+    "同步"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Wanghanxuyang/dsh-chat-history-sync.git"
+  },
+  "homepage": "https://github.com/Wanghanxuyang/dsh-chat-history-sync#readme",
+  "bugs": {
+    "url": "https://github.com/Wanghanxuyang/dsh-chat-history-sync/issues"
+  },
+  "os": [
+    "win32"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings"
+      ],
+      "platform": "web",
+      "immediately": true
+    }
+  }
+}
