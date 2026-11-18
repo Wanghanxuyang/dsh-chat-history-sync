@@ -321,12 +321,8 @@ window.__ModuleLoader__.load({
       const needInstall = installPending || pendingText;
       const shownStatus = (!running && pendingText) ? '同步完成 · 待确认安装' : statusLine;
       const failed = !!(value && (value.status === 'error' || /失败|失效/.test(String(shownStatus || ''))));
-      const fmtPhone = (p) => {
-        const s = String(p || '');
-        if (!s) return '';
-        if (s.includes('*')) return s;
-        const d = s.replace(/\D/g, '');
-        return d.length >= 11 ? d.slice(0, 3) + '****' + d.slice(-4) : '';
+      const fmtTime = (ts) => {
+        try { return new Date(ts).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
       };
 
       return h('div', { className: 'msx', style: { display: 'grid', gap: 18, maxWidth: 640, padding: '2px 0 8px' } },
@@ -352,7 +348,7 @@ window.__ModuleLoader__.load({
           h('div', { className: 'msx-sub', style: { padding: '0 16px 12px' } }, running ? '后台同步中，可以离开此页。' : '后台同步，可离开此页。'),
           running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuetext': '同步进行中' }, h('i', null)) : null,
           (value && value.lastSyncAt) ? h('div', { className: 'msx-sub', style: { paddingTop: 6 } },
-            '上次同步 ' + new Date(value.lastSyncAt).toLocaleString(),
+            '上次同步 ' + fmtTime(value.lastSyncAt),
           ) : null,
           (value && value.reportText) ? h('div', { className: 'msx-row', style: { borderTop: '1px solid var(--dsw-alias-border-l1)', paddingTop: 10, paddingBottom: 10 } },
             h('button', { className: 'msx-linkbtn', 'aria-expanded': reportOpen, onClick: () => setReportOpen(!reportOpen) }, reportOpen ? '收起报告' : '查看报告'),
@@ -401,8 +397,7 @@ window.__ModuleLoader__.load({
                       value: a.nickname || '', placeholder: a.name || '显示名', label: '显示名', disabled: busy, width: 130, bold: true,
                       onCommit: (v) => patchRow(i, { nickname: v }),
                     }),
-                    h('div', { className: 'msx-sub' }, fmtPhone(a.phone) || '未绑定手机'),
-                    (health[a.name] || health[a.prefix]) ? h('div', { className: 'msx-sub', style: { color: /失败|error|失效/.test(String(health[a.name] || health[a.prefix])) ? 'var(--dsw-alias-state-error)' : 'var(--dsw-alias-label-secondary)' } }, String(health[a.name] || health[a.prefix]).slice(0, 80)) : null,
+                    (health[a.name] || health[a.prefix]) && /失败|error|失效/.test(String(health[a.name] || health[a.prefix])) ? h('div', { className: 'msx-sub', style: { color: 'var(--dsw-alias-state-error)' } }, String(health[a.name] || health[a.prefix]).slice(0, 80)) : null,
                   ),
                 ),
                 h('label', { style: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--dsw-alias-label-secondary)', flex: '0 0 auto' } },
