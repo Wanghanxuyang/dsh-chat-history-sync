@@ -93,6 +93,7 @@ window.__ModuleLoader__.load({
       React.useEffect(() => {
         let alive = true;
         const tick = async () => {
+          if (document.visibilityState === 'hidden') return;
           try {
             const res = await clientCtx.remote.settings.describe();
             const doc = res && res.ok ? res.value : null;
