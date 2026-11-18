@@ -21,3 +21,18 @@ for (const s of ['cancelSync', 'installPending', 'installNow', 'exportDiagnostic
   if (!client.includes(s)) { console.error('missing UI control ' + s); process.exit(1); }
 }
 console.log('cancel/install controls present');
+
+if (process.platform === 'win32') {
+  const { spawn } = require('child_process');
+  const child = spawn(process.execPath, ['-e', 'setInterval(()=>{},1000)'], { stdio: 'ignore' });
+  setTimeout(() => {
+    const killer = spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore', windowsHide: true });
+    killer.on('close', () => {
+      setTimeout(() => {
+        if (child.exitCode === null) { console.error('cancel child still alive'); process.exit(1); }
+        console.log('cancel process-tree test passed');
+      }, 300);
+    });
+  }, 300);
+}
+
