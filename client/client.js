@@ -32,7 +32,13 @@ window.__ModuleLoader__.load({
       const key = 'r' + i;
       if (/^##\s+/.test(line)) return h('div', { key, className: 'msx-report-h' }, line.replace(/^##\s+/, ''));
       if (/^\s*-\s+摘要：/.test(line)) return h('div', { key, className: 'msx-report-sum' }, line.replace(/^\s*-\s+/, ''));
-      if (/^-\s+/.test(line)) return h('div', { key, className: 'msx-report-item' }, '• ' + line.replace(/^-\s+/, '').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1'));
+      if (/^-\s+/.test(line)) {
+        const link = line.match(/\[([^\]]+)\]\(([^)]+)\)/);
+        return h('div', { key, className: 'msx-report-item' },
+          '• ' + line.replace(/^-\s+/, '').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1'),
+          link ? h('button', { className: 'msx-linkbtn', 'aria-label': '复制会话位置路径', title: link[2], onClick: () => { try { navigator.clipboard.writeText(link[2]); } catch (e) {} } }, '复制路径') : null,
+        );
+      }
       return h('div', { key, className: 'msx-report-line' }, line.replace(/\[([^\]]+)\]\([^)]*\)/g, '$1'));
     });
 
