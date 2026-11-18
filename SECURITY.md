@@ -13,6 +13,12 @@
 - `run-config.json` and `login-result.json` are deleted at startup; stale temporary Edge profiles are removed after 30 minutes
 - Diagnostic export contains counts and status only, not logs, account names, tokens, or phone numbers
 
+## Removing an account
+
+- Removing an account stops future sync and removes the account entry/token from the plugin config
+- Archived conversations and attachments are kept; delete them manually if required
+- This is intentional: the plugin is append-only and does not silently destroy history
+
 ## Network
 
 - Sync and login only contact `chat.deepseek.com` and DeepSeek file hosts
