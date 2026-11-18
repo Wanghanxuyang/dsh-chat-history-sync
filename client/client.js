@@ -18,6 +18,7 @@ window.__ModuleLoader__.load({
         className: 'msx-input',
         value: v,
         placeholder,
+        title: label || placeholder || '',
         'aria-label': label || placeholder || '输入',
         disabled,
         style: { width, fontWeight: bold ? 600 : 400 },
