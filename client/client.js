@@ -88,6 +88,7 @@ window.__ModuleLoader__.load({
 
     function FooterEntry({ wide }) {
       const [busy, setBusy] = React.useState(false);
+      const [hover, setHover] = React.useState(false);
       const [meta, setMeta] = React.useState({ running: false, pending: false });
       React.useEffect(() => {
         let alive = true;
@@ -126,7 +127,9 @@ window.__ModuleLoader__.load({
         'aria-label': running ? '正在同步聊天历史' : '立即同步聊天历史',
         disabled: running,
         onClick: run,
-        style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: 'transparent', color: 'var(--dsw-alias-label-secondary)', font: 'inherit', fontSize: 13, cursor: 'pointer' },
+        onMouseEnter: () => setHover(true),
+        onMouseLeave: () => setHover(false),
+        style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: hover && !running ? 'var(--dsw-alias-bg-layer-2)' : 'transparent', color: 'var(--dsw-alias-label-secondary)', font: 'inherit', fontSize: 13, cursor: 'pointer' },
       }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, running ? '…' : '↻', meta.pending && !running ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning)' } }) : null), wide ? h('span', null, running ? '正在同步' : (meta.pending ? '待安装' : '同步聊天历史')) : null);
     }
 
@@ -459,7 +462,7 @@ window.__ModuleLoader__.load({
               ),
             ),
             h('div', { className: 'msx-row' },
-              h('button', { className: 'msx-linkbtn', 'aria-expanded': advOpen, onClick: () => setAdvOpen(!advOpen) }, advOpen ? '收起高级设置' : '高级设置'),
+              h('button', { className: 'msx-linkbtn', 'aria-expanded': advOpen, onClick: () => setAdvOpen(!advOpen) }, advOpen ? '收起高级设置 ▴' : '高级设置 ▾'),
             ),
             advOpen ? h('div', null,
               h('div', { className: 'msx-row' },
