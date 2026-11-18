@@ -348,7 +348,7 @@ window.__ModuleLoader__.load({
               h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running, 'aria-label': running ? '同步进行中' : '立即同步聊天历史', onClick: trigger }, running ? '同步中…' : '立即同步'),
             ),
           ),
-          h('div', { className: 'msx-sub', style: { padding: '0 16px 12px' } }, running ? '后台同步中，可以离开此页。' : '后台同步，可离开此页。'),
+          h('div', { className: 'msx-sub', style: { padding: '0 16px 12px' } }, running ? '后台同步中，可离开此页。' : '同步时可离开此页。'),
           running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuetext': '同步进行中' }, h('i', null)) : null,
           (value && value.lastSyncAt) ? h('div', { className: 'msx-sub', style: { paddingTop: 6 } },
             '上次同步 ' + fmtTime(value.lastSyncAt),
