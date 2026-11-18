@@ -410,7 +410,7 @@ window.__ModuleLoader__.load({
           accOpen ? h('div', { className: 'msx-card', style: { marginTop: 8 } },
             accounts.length === 0
               ? h('div', { style: { padding: '14px 16px' } },
-                h('div', { className: 'msx-muted' }, '还没有账号。登录后自动同步该账号的聊天历史。'),
+                h('div', { className: 'msx-muted' }, '还没有账号。登录后即可同步该账号的聊天历史。'),
                 h('div', { className: 'msx-sub', style: { marginTop: 6 } }, 'DSH 自建会话不会被改动。'),
               )
               : accounts.map((a, i) => h('div', { key: i, className: 'msx-row', style: { gap: 10 } },
