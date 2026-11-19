@@ -59,6 +59,7 @@ if (!clientText.includes('freshNs')) fail('footer sync revision retry missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('legacyManifestKeyOf')) fail('legacy manifest key fallback missing');
 if (fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('datasetUserFingerprints')) fail('global dataset fingerprint still drops DSH turns');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('function sameAccount')) fail('cross-account adoption guard missing');
+if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes('msgs.length < (previous.messages')) fail('short dataset guard missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
