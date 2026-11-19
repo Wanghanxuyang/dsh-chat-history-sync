@@ -10,7 +10,7 @@ window.__ModuleLoader__.load({
     let clientCtx = null;
 
     // 可编辑文本：输入时不写设置，失焦/回车才提交（避免每敲一字触发 HMR/失焦）
-    const EditableField = ({ value, placeholder, disabled, width, bold, label, onCommit }) => {
+    const EditableField = ({ value, placeholder, disabled, width, bold, label, maxLength, onCommit }) => {
       const [v, setV] = React.useState(value || '');
       const editing = React.useRef(false);
       const cancelled = React.useRef(false);
@@ -19,6 +19,7 @@ window.__ModuleLoader__.load({
         className: 'msx-input',
         value: v,
         placeholder,
+        maxLength,
         title: label || placeholder || '',
         'aria-label': label || placeholder || '输入',
         disabled,
@@ -466,7 +467,7 @@ window.__ModuleLoader__.load({
                     : h('div', { className: 'msx-avatar' }, String(a.nickname || a.name || a.prefix || '?').slice(0, 1)),
                   h('div', { style: { minWidth: 0 } },
                     h(EditableField, {
-                      value: a.nickname || '', placeholder: a.name || '显示名', label: '显示名', disabled: busy, width: 130, bold: true,
+                      value: a.nickname || '', placeholder: a.name || '显示名', label: '显示名', disabled: busy, width: 130, bold: true, maxLength: 80,
                       onCommit: (v) => patchRow(i, { nickname: v }),
                     }),
                     (health[a.name] || health[a.prefix]) && /失败|error|失效/.test(String(health[a.name] || health[a.prefix])) ? h('div', { className: 'msx-sub', style: { color: 'var(--dsw-alias-state-error)' } }, String(health[a.name] || health[a.prefix]).slice(0, 80)) : null,
@@ -475,7 +476,7 @@ window.__ModuleLoader__.load({
                 h('label', { title: '账号简称会作为会话标题前缀，修改会重命名已生成的会话', style: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--dsw-alias-label-secondary)', flex: '0 0 auto' } },
                   h('span', null, '简称：'),
                   h(EditableField, {
-                    value: a.prefix || '', placeholder: a.name || '自动', label: '账号简称', disabled: busy, width: 110,
+                    value: a.prefix || '', placeholder: a.name || '自动', label: '账号简称', disabled: busy, width: 110, maxLength: 40,
                     onCommit: (v) => patchRow(i, { prefix: v }),
                   }),
                 ),
