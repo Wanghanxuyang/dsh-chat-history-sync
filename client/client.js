@@ -398,7 +398,7 @@ window.__ModuleLoader__.load({
       const needInstall = !installDeferred && pendingInstall;
       const shownStatus = loginPending ? '等待登录…' : ((!running && pendingText) ? '同步完成 · 待确认安装' : statusLine);
       const failed = !!(value && (value.status === 'error' || /^同步失败|^自动同步失败|部分账号失败|^安装失败|^安装未完成|^安装调度失败/.test(String(shownStatus || ''))));
-      const needRelogin = failed && /^同步失败.*(登录失效|风控|401|403)/.test(statusText);
+      const needRelogin = failed && /^(同步失败|自动同步失败).*(登录失效|风控|401|403)/.test(statusText);
       const fmtTime = (ts) => {
         try { return new Date(ts).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
       };
