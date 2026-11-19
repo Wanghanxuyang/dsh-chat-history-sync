@@ -292,6 +292,10 @@ window.__ModuleLoader__.load({
         return () => clearInterval(t);
       }, []);
 
+      const flash = (text, ms = 8000) => {
+        setMsg(text);
+        setTimeout(() => setMsg((cur) => (cur === text ? '' : cur)), ms);
+      };
       const write = async (field, v, clearAccounts = false) => {
         setBusy(true);
         try {
@@ -306,8 +310,8 @@ window.__ModuleLoader__.load({
           if (r && r.ok) {
             setRevision(r.value.revision); lastRev.current = r.value.revision; setValue(r.value.value || {}); setMsg('已保存');
             setTimeout(() => setMsg((cur) => (cur === '已保存' ? '' : cur)), 1800);
-          } else { setMsg('保存被拒绝'); void load(); }
-        } catch (e) { setMsg('保存失败：' + (e && e.message)); }
+          } else { flash('保存被拒绝'); void load(); }
+        } catch (e) { flash('保存失败：' + (e && e.message)); }
         setBusy(false);
       };
 
@@ -320,7 +324,7 @@ window.__ModuleLoader__.load({
         try {
           const r = await clientCtx.remote.settings.mutate(nsRef.current, [{ op: 'set', path: ['runNow'], value: true }], revision);
           if (!r || !r.ok) {
-            setMsg('触发被拒绝，请重试');
+            flash('触发被拒绝，请重试');
             setStartedAt(0);
             setBusy(false);
             try { window.localStorage.removeItem(START_KEY); } catch (e) {}
@@ -337,7 +341,7 @@ window.__ModuleLoader__.load({
               }
             } catch (e) {}
           }, 5000);
-        } catch (e) { setMsg('触发失败：' + (e && e.message)); setStartedAt(0); try { window.localStorage.removeItem(START_KEY); } catch (e2) {} }
+        } catch (e) { flash('触发失败：' + (e && e.message)); setStartedAt(0); try { window.localStorage.removeItem(START_KEY); } catch (e2) {} }
         setBusy(false);
       };
 
@@ -356,9 +360,9 @@ window.__ModuleLoader__.load({
             setTimeout(() => setBusy(false), 3000);
             return;
           } else {
-            setMsg('登录触发失败，请重试');
+            flash('登录触发失败，请重试');
           }
-        } catch (e) { setMsg('登录触发失败：' + (e && e.message)); }
+        } catch (e) { flash('登录触发失败：' + (e && e.message)); }
         setBusy(false);
       };
 
