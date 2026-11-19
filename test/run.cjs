@@ -63,6 +63,7 @@ if (!indexText.includes('statusTextLength')) fail('diagnostics must not expose s
 if (!indexText.includes("createHash('sha256')")) fail('prefix marker must hash account names');
 if (!indexText.includes('replace(/[\\x00-\\x1f\\\\/:*?"<>|]/g')) fail('safeName control-char sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('\\x00-\\x1f')) fail('installer control-char sanitization missing');
+if (!indexText.includes('noChangeText')) fail('auto no-change partial failure lost');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('cleanTitle')) fail('catalog link label sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('\\x00-\\x1f')) fail('catalog filename control-char sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('encodeURIComponent(fname)')) fail('catalog link encoding missing');
