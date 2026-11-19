@@ -56,6 +56,7 @@ if (!clientText.includes("e.key === 'Escape'")) fail('editable field escape canc
 if (!clientText.includes('cancelled.current')) fail('escape cancel guard missing');
 if (!clientText.includes('maxLength')) fail('editable field length cap missing');
 if (!clientText.includes('freshNs')) fail('footer sync revision retry missing');
+if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('legacyManifestKeyOf')) fail('legacy manifest key fallback missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
