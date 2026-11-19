@@ -479,7 +479,7 @@ window.__ModuleLoader__.load({
                 confirmDel === i ? h('button', { className: 'msx-btn msx-btn-danger', autoFocus: true, disabled: busy, 'aria-label': '确认移除账号', onClick: () => { setConfirmDel(-1); setAccounts(accounts.filter((_, j) => j !== i)); } }, '确认移除') : null,
               )),
           ) : null,
-          h('button', { className: 'msx-dashed', disabled: busy, 'aria-label': '登录新的 DeepSeek 账号', onClick: login }, '＋ 登录新账号'),
+          h('button', { className: 'msx-dashed', disabled: busy || running || loginPending, 'aria-label': '登录新的 DeepSeek 账号', onClick: login }, '＋ 登录新账号'),
 
           (value && value.loginStatus && /请在弹出的浏览器|正在打开登录页/.test(String(value.loginStatus)))
             ? h('button', { className: 'msx-btn', style: { marginTop: 8 }, disabled: busy, onClick: () => void write('loginCancel', Date.now()) }, '取消登录')
