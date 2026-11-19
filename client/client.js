@@ -100,7 +100,8 @@ window.__ModuleLoader__.load({
       const [busy, setBusy] = React.useState(false);
       const [failed, setFailed] = React.useState(false);
       const [hover, setHover] = React.useState(false);
-      const [meta, setMeta] = React.useState({ running: false, pending: false, deferred: false, empty: false, noEnabled: false, loginWaits: false, authFailed: false });
+      const [meta, setMeta] = React.useState({ running: false, pending: false, deferred: false, empty: false, noEnabled: false, loginWaits: false, authFailed: false, installScheduled: false });
+      const [installing, setInstalling] = React.useState(false);
       React.useEffect(() => {
         let alive = true;
         const tick = async () => {
@@ -113,7 +114,7 @@ window.__ModuleLoader__.load({
             if (alive && ns) {
               let accounts = [];
               try { accounts = JSON.parse((ns.value && ns.value.accounts) || '[]'); } catch (e) { accounts = []; }
-              setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending) && ns.value.autoInstall !== false, deferred: !!(ns.value && ns.value.installDeferred) && ns.value.autoInstall !== false, empty: !accounts.length, noEnabled: accounts.length > 0 && !accounts.some((a) => a && a.enabled !== false), loginWaits: /正在打开登录页|请在弹出的浏览器/.test(String((ns.value && ns.value.loginStatus) || '')), authFailed: !!(ns.value && ns.value.status === 'error' && /^(同步失败|自动同步失败).*(登录失效|风控|401|403)/.test(String(ns.value.statusText || ''))) });
+              setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending) && ns.value.autoInstall !== false, deferred: !!(ns.value && ns.value.installDeferred) && ns.value.autoInstall !== false, empty: !accounts.length, noEnabled: accounts.length > 0 && !accounts.some((a) => a && a.enabled !== false), loginWaits: /正在打开登录页|请在弹出的浏览器/.test(String((ns.value && ns.value.loginStatus) || '')), authFailed: !!(ns.value && ns.value.status === 'error' && /^(同步失败|自动同步失败).*(登录失效|风控|401|403)/.test(String(ns.value.statusText || ''))), installScheduled: !!(ns.value && ns.value.installScheduled) });
             }
           } catch (e) {}
         };
@@ -124,13 +125,18 @@ window.__ModuleLoader__.load({
       const running = busy || meta.running;
       const loginWaits = !!meta.loginWaits;
       const authFailed = !!meta.authFailed;
-      const installReady = !running && !meta.empty && !meta.noEnabled && !!meta.pending && !meta.deferred;
-      const blocked = running || meta.empty || meta.noEnabled || loginWaits || authFailed;
+      const restarting = !!meta.installScheduled;
+      const installReady = !running && !restarting && !meta.empty && !meta.noEnabled && !!meta.pending && !meta.deferred;
+      const blocked = running || restarting || meta.empty || meta.noEnabled || loginWaits || authFailed;
+      React.useEffect(() => {
+        if (!meta.installScheduled && !meta.pending) setInstalling(false);
+      }, [meta.installScheduled, meta.pending]);
       const run = async () => {
         if (blocked) return;
         setBusy(true);
         setFailed(false);
         const field = installReady ? 'installNow' : 'runNow';
+        if (installReady) setInstalling(true);
         let ok = false;
         try {
           const res = await clientCtx.remote.settings.describe();
@@ -149,6 +155,7 @@ window.__ModuleLoader__.load({
           ok = !!(r && r.ok);
         } catch (e) {} finally {
           if (!ok) {
+            setInstalling(false);
             setFailed(true);
             setTimeout(() => setFailed(false), 5000);
           }
@@ -158,15 +165,15 @@ window.__ModuleLoader__.load({
       return h('button', {
         type: 'button',
         className: 'msx-footer-action',
-        title: failed ? '未触发，点击重试' : (installReady ? '新会话待安装，点击立即安装并重启 DSH' : (meta.empty ? '请先在设置中登录账号' : (meta.noEnabled ? '请先在设置中启用账号' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步，可在设置页查看进度' : '立即同步聊天历史')))))),
-        'aria-label': failed ? '未触发，点击重试' : (installReady ? '新会话待安装，点击立即安装' : (meta.empty ? '未登录，请先在设置中登录账号' : (meta.noEnabled ? '未启用账号，请先在设置中启用' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步聊天历史' : '立即同步聊天历史')))))),
-        'aria-busy': running || undefined,
+        title: restarting ? '安装已安排，即将重启 DSH' : (installing ? '正在安排安装…' : (failed ? '未触发，点击重试' : (installReady ? '新会话待安装，点击立即安装并重启 DSH' : (meta.empty ? '请先在设置中登录账号' : (meta.noEnabled ? '请先在设置中启用账号' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步，可在设置页查看进度' : '立即同步聊天历史')))))))),
+        'aria-label': restarting ? '安装已安排，即将重启 DSH' : (installing ? '正在安排安装' : (failed ? '未触发，点击重试' : (installReady ? '新会话待安装，点击立即安装' : (meta.empty ? '未登录，请先在设置中登录账号' : (meta.noEnabled ? '未启用账号，请先在设置中启用' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步聊天历史' : '立即同步聊天历史')))))))),
+        'aria-busy': running || restarting || undefined,
         disabled: blocked,
         onClick: run,
         onMouseEnter: () => setHover(true),
         onMouseLeave: () => setHover(false),
-        style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: hover && !running ? 'var(--dsw-alias-bg-layer-2)' : 'transparent', color: 'var(--dsw-alias-label-secondary)', font: 'inherit', fontSize: 13, cursor: 'pointer' },
-      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, running ? '…' : (failed ? '!' : (installReady ? '↓' : '↻')), (meta.pending || meta.deferred) && !running ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning, #f5a623)' } }) : null), wide ? h('span', null, failed ? '未触发' : (installReady ? '立即安装' : (meta.empty ? '未登录' : (meta.noEnabled ? '先启用' : (authFailed ? '需重新登录' : (loginWaits ? '等待登录' : (running ? '正在同步' : '同步聊天历史'))))))) : null);
+        style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: hover && !running && !restarting ? 'var(--dsw-alias-bg-layer-2)' : 'transparent', color: restarting ? 'var(--dsw-alias-state-warning, #b86e00)' : 'var(--dsw-alias-label-secondary)', font: 'inherit', fontSize: 13, cursor: restarting ? 'default' : 'pointer' },
+      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, restarting ? '⏻' : (installing || running ? '…' : (failed ? '!' : (installReady ? '↓' : '↻'))), (meta.pending || meta.deferred) && !running && !restarting ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning, #f5a623)' } }) : null), wide ? h('span', null, restarting ? '即将重启' : (installing ? '正在安排安装' : (failed ? '未触发' : (installReady ? '立即安装' : (meta.empty ? '未登录' : (meta.noEnabled ? '先启用' : (authFailed ? '需重新登录' : (loginWaits ? '等待登录' : (running ? '正在同步' : '同步聊天历史'))))))))) : null);
     }
 
     class SlotBoundary extends React.Component {
@@ -320,7 +327,7 @@ window.__ModuleLoader__.load({
               setRevision(ns.revision);
               setValue((cur) => {
                 const next = { ...(cur || {}) };
-                for (const k of ['accounts', 'attachmentMode', 'autoSync', 'autoInstall', 'installPending', 'installNow', 'installDeferred', 'installDeferredByUser', 'duplicateCount', 'notifyEnabled', 'digestEnabled', 'lastSyncAt', 'lastSyncResult', 'accountHealth', 'attachmentStats', 'reportTargetSessionId', 'loginStatus', 'loginRequest', 'status', 'statusText', 'reportText']) if (v[k] !== undefined) next[k] = v[k];
+                for (const k of ['accounts', 'attachmentMode', 'autoSync', 'autoInstall', 'installPending', 'installNow', 'installDeferred', 'installDeferredByUser', 'installScheduled', 'duplicateCount', 'notifyEnabled', 'digestEnabled', 'lastSyncAt', 'lastSyncResult', 'accountHealth', 'attachmentStats', 'reportTargetSessionId', 'loginStatus', 'loginRequest', 'status', 'statusText', 'reportText']) if (v[k] !== undefined) next[k] = v[k];
                 return next;
               });
             }
