@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.39
+
+- 安装重启脚本改用 `node.exe` 执行内置安装器，不再依赖 Electron 的 `ELECTRON_RUN_AS_NODE`
+- 安装器 stdout/stderr 写入 `install-public.log`，结果 JSON 附带日志路径
+
 ## 0.12.38
 
 - 移除主页面顶部“安装成功”浮层，改为侧栏快捷按钮内的绿色圆点“安装成功”状态
