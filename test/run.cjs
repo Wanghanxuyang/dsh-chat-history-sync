@@ -41,6 +41,7 @@ if (!indexText.includes('AddSeconds(30)')) fail('installer process wait missing'
 if (!indexText.includes('opts.failed')) fail('afterSync failure guard missing');
 if (!indexText.includes('$LASTEXITCODE = $null')) fail('installer exit reset missing');
 if (!indexText.includes("ELECTRON_RUN_AS_NODE: '1'")) fail('child Electron env missing');
+if (!indexText.includes('prefix-renamed.json')) fail('prefix rename cache missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes("return '06-misc'")) fail('neutral category fallback missing');
 for (const f of ['catalog.cjs', 'export.cjs']) if (!fs.readFileSync(path.join(root, 'lib', 'engine', f), 'utf8').includes('if (!fs.existsSync(rawDir)) process.exit(0)')) fail(f + ' missing empty workspace guard');
 for (const f of ['catalog.cjs', 'export.cjs']) if (!fs.readFileSync(path.join(root, 'lib', 'engine', f), 'utf8').includes('skip corrupt dataset')) fail(f + ' missing corrupt dataset guard');
