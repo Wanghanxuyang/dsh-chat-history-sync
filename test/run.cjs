@@ -150,6 +150,7 @@ if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').in
 if (!clientText.includes("succeeded ? '安装成功'")) fail('footer install success state missing');
 if (clientText.includes('InstallSuccessToast')) fail('separate install success overlay still present');
 if (!indexText.includes('installSucceeded')) fail('install success state missing');
+if (!indexText.includes('--assume-dsh-stopped')) fail('installer assume-stopped flag missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('仅记录，不判定安装失败')) fail('non-fatal install verify missing');
 if (!clientText.includes('即将重启')) fail('restarting footer state missing');
 if (!indexText.includes('installScheduled')) fail('install scheduled state missing');
