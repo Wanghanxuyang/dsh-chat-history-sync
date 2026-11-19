@@ -87,6 +87,7 @@ if (!indexText.includes('const msg = \'自动同步失败：\'')) fail('auto err
 if (!indexText.includes('lastAutoInstall')) fail('install reminder re-enable missing');
 if (!indexText.includes('!liveConfig.installDeferredByUser && cfgGet')) fail('startup deferred install restore missing');
 if (!indexText.includes('installDeferredByUser: true')) fail('user-deferred flag missing');
+if (!indexText.includes('else { patch2.installDeferred = false')) fail('install schedule failure card missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
