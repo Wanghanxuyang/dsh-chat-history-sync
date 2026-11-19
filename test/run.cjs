@@ -100,6 +100,7 @@ if (!clientText.includes('decodeURIComponent')) fail('report path decode missing
 if (!indexText.includes("if (!t || t === '.' || t === '..') return '';")) fail('invalid account name fallback must be unique');
 if (!indexText.includes('const nextPrefix =')) fail('empty account prefix fallback missing');
 if (!indexText.includes('seenPrefixes')) fail('duplicate account prefix fallback missing');
+if (!indexText.includes('while (seenPrefixes.has')) fail('duplicate prefix loop missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
