@@ -64,6 +64,7 @@ if (!indexText.includes("createHash('sha256')")) fail('prefix marker must hash a
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('cleanTitle')) fail('catalog link label sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('\\x00-\\x1f')) fail('catalog filename control-char sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('encodeURIComponent(fname)')) fail('catalog link encoding missing');
+if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('cleanFullTitle')) fail('catalog body newline sanitization missing');
 if (clientText.includes('!hasAccounts && /正在打开')) fail('loginPending must not depend on empty accounts');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes("return '06-misc'")) fail('neutral category fallback missing');
 for (const f of ['catalog.cjs', 'export.cjs']) if (!fs.readFileSync(path.join(root, 'lib', 'engine', f), 'utf8').includes('if (!fs.existsSync(rawDir)) process.exit(0)')) fail(f + ' missing empty workspace guard');
