@@ -376,6 +376,7 @@ window.__ModuleLoader__.load({
       const needInstall = !installDeferred && pendingInstall;
       const shownStatus = loginPending ? '等待登录…' : ((!running && pendingText) ? '同步完成 · 待确认安装' : statusLine);
       const failed = !!(value && (value.status === 'error' || /失败|失效/.test(String(shownStatus || ''))));
+      const needRelogin = failed && /登录失效|风控|401|403/.test(statusText);
       const fmtTime = (ts) => {
         try { return new Date(ts).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
       };
@@ -402,6 +403,7 @@ window.__ModuleLoader__.load({
             h('div', { style: { display: 'flex', gap: 8, flexShrink: 0 } },
               loginPending ? h('button', { className: 'msx-btn', disabled: busy, 'aria-label': '取消登录', onClick: () => void write('loginCancel', Date.now()) }, '取消登录') : null,
               running ? h('button', { className: 'msx-btn', disabled: busy, 'aria-label': '取消当前同步', onClick: () => void write('cancelSync', true) }, '取消') : null,
+              needRelogin ? h('button', { className: 'msx-btn', disabled: busy || running || loginPending, 'aria-label': '重新登录 DeepSeek 账号', onClick: () => void write('loginRequest', Date.now()) }, '重新登录') : null,
               h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running || !hasAccounts || !value || loginPending, 'aria-label': !value ? '加载中' : (loginPending ? '等待浏览器登录' : (!hasAccounts ? (hasAnyAccounts ? '请先启用账号' : '登录 DeepSeek 账号') : (running ? '同步进行中' : '立即同步聊天历史'))), onClick: !hasAccounts && !hasAnyAccounts ? login : trigger }, !value ? '加载中' : (loginPending ? '登录中…' : (!hasAccounts ? (hasAnyAccounts ? '先启用' : '登录账号') : (running ? '同步中…' : '立即同步')))),
             ),
           ),
