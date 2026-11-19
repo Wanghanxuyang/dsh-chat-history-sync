@@ -13,7 +13,7 @@ for (const key of ['name', 'version', 'description', 'license', 'main', 'files']
 if (!pkg.repository || !pkg.repository.url) fail('package.json missing repository');
 if (!pkg.homepage) fail('package.json missing homepage');
 if (!/^## 安装$/m.test(fs.readFileSync(path.join(root, 'README.md'), 'utf8'))) fail('README install section missing');
-if ((fs.readFileSync(path.join(root, 'README.md'), 'utf8').match(/^## 安装$/gm) || []).length > 1) fail('README has duplicate install sections');
+if ((fs.readFileSync(path.join(root, 'README.md'), 'utf8').match(/^## 导入$/gm) || []).length > 1) fail('README has duplicate install sections');
 if (!fs.existsSync(path.join(root, 'README.en.md'))) fail('README.en.md missing');
 if (!fs.existsSync(path.join(root, 'SECURITY.md'))) fail('SECURITY.md missing');
 if (!fs.existsSync(path.join(root, 'docs', 'RELEASE.md'))) fail('release checklist missing');
@@ -34,7 +34,7 @@ if (!indexText.includes('accountsCleared') || !clientText.includes('accountsClea
 if (!indexText.includes("runNow: false, status: 'running'")) fail('runNow edge not reset');
 if (!indexText.includes('pending.failed')) fail('install failure marker not read');
 if (!indexText.includes('该账号在登录期间已被删除')) fail('login stale snapshot guard missing');
-if (!indexText.includes('安装未完成，请重试')) fail('install watchdog missing');
+if (!indexText.includes('导入未完成，请重试')) fail('install watchdog missing');
 if (!indexText.includes('persistSettings failed')) fail('settings write retry/log missing');
 if (!indexText.includes("Microsoft', 'Edge'")) fail('per-user Edge path missing');
 if (!indexText.includes('AddSeconds(30)')) fail('installer process wait missing');
@@ -77,9 +77,9 @@ if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').i
 if (!clientText.includes('aria-valuenow')) fail('progressbar value missing');
 if (!clientText.includes('setTimeout(() => setBusy(false), 3000)')) fail('login busy guard missing');
 if (!clientText.includes('部分账号失败')) fail('failure prefix matcher missing');
-if (!clientText.includes("autoInstall && /^(安装失败|安装未完成|安装调度失败)")) fail('install failure prefix matcher missing');
+if (!clientText.includes("autoInstall && /^(导入失败|导入未完成|导入调度失败)")) fail('install failure prefix matcher missing');
 if (!indexText.includes('/^同步失败/.test(String(result')) fail('auth detection must require failure prefix');
-if (!clientText.includes('同步完成：检测到新会话')) fail('pending install prefix missing');
+if (!clientText.includes('同步完成：检测到新对话')) fail('pending install prefix missing');
 if (!indexText.includes('数据集损坏|写入失败|全部抓取失败|失败')) fail('partial failure suffix matcher missing');
 if (!indexText.includes('m = line.match(/^\\s*-\\s*(.+)[:：]')) fail('health colon parsing missing');
 if (!clientText.includes('同步失败|自动同步失败')) fail('auto auth failure hint missing');
@@ -131,7 +131,7 @@ if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').in
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes("replace(/\\\\/g, '\\\\\\\\')")) fail('markdown backslash escaping missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
-if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
+if (!clientText.includes('导入未完成')) fail('install watchdog status not rendered');
 if (!clientText.includes('重新登录')) fail('relogin action missing');
 if (!clientText.includes('登录失效，请点')) fail('auth failure hint missing');
 if (!clientText.includes('等待浏览器登录完成')) fail('footer login wait guard missing');
@@ -145,13 +145,13 @@ if (!indexText.includes('replace(/[\\x00-\\x1f\\x7f-\\x9f\\u200b-\\u200f\\u202a-
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('\\x00-\\x1f')) fail('installer control-char sanitization missing');
 if (!indexText.includes('noChangeText')) fail('auto no-change partial failure lost');
 if (!indexText.includes('!/^ - /.test(line)')) fail('old account summary log scrub missing');
-if (!clientText.includes('安装未完成')) fail('install failure card copy missing');
+if (!clientText.includes('导入未完成')) fail('install failure card copy missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes("missing cache（DSH 启动时会重建）")) fail('install cache verification missing');
-if (!clientText.includes("succeeded ? '安装成功'")) fail('footer install success state missing');
+if (!clientText.includes("succeeded ? '导入成功'")) fail('footer install success state missing');
 if (clientText.includes('InstallSuccessToast')) fail('separate install success overlay still present');
 if (!indexText.includes('installSucceeded')) fail('install success state missing');
 if (!indexText.includes('--assume-dsh-stopped')) fail('installer assume-stopped flag missing');
-if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('仅记录，不判定安装失败')) fail('non-fatal install verify missing');
+if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('仅记录，不判定导入失败')) fail('non-fatal install verify missing');
 if (!clientText.includes('即将重启')) fail('restarting footer state missing');
 if (!indexText.includes('installScheduled')) fail('install scheduled state missing');
 if (!indexText.includes('patch.accountHealth = JSON.stringify(health)')) fail('account health not cleared on success');
@@ -161,7 +161,7 @@ if (indexText.includes('publish({ loginStatus')) fail('login status must be pers
 if (!indexText.includes("loginStatus: ''")) fail('stale login status cleanup missing');
 if (!indexText.includes('bootLoginRequest')) fail('new login must not be cleared at startup');
 if (!indexText.includes('void publishPersistent({ runNow: false })')) fail('startup runNow reset must be persistent');
-if (!clientText.includes('autoInstall && /^(安装完成')) fail('install status not hidden when reminder off');
+if (!clientText.includes('autoInstall && /^(导入完成')) fail('install status not hidden when reminder off');
 if (indexText.includes('lastPublish')) fail('unused lastPublish variable');
 if (!clientText.includes("needRelogin ? '先重新登录'")) fail('auth failure primary action not guarded');
 if (!clientText.includes('需重新登录')) fail('footer auth failure guard missing');
