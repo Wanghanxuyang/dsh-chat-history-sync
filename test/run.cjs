@@ -77,6 +77,7 @@ if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').i
 if (!clientText.includes('aria-valuenow')) fail('progressbar value missing');
 if (!clientText.includes('setTimeout(() => setBusy(false), 3000)')) fail('login busy guard missing');
 if (!clientText.includes('部分账号失败')) fail('failure prefix matcher missing');
+if (!clientText.includes("autoInstall && /^(安装失败|安装未完成|安装调度失败)")) fail('install failure prefix matcher missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
@@ -101,7 +102,7 @@ if (indexText.includes('publish({ loginStatus')) fail('login status must be pers
 if (!indexText.includes("loginStatus: ''")) fail('stale login status cleanup missing');
 if (!indexText.includes('bootLoginRequest')) fail('new login must not be cleared at startup');
 if (!indexText.includes('void publishPersistent({ runNow: false })')) fail('startup runNow reset must be persistent');
-if (!clientText.includes('autoInstall && /安装完成')) fail('install status not hidden when reminder off');
+if (!clientText.includes('autoInstall && /^(安装完成')) fail('install status not hidden when reminder off');
 if (indexText.includes('lastPublish')) fail('unused lastPublish variable');
 if (!clientText.includes("needRelogin ? '先重新登录'")) fail('auth failure primary action not guarded');
 if (!clientText.includes('需重新登录')) fail('footer auth failure guard missing');
