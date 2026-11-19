@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.94
+
+- 已有账号重新登录成功时，如果上一条状态是 error，清空旧 `lastSyncResult`，避免悬停仍显示认证失败
+
 ## 0.11.93
 
 - 待安装状态只认持久化的 `installPending`，不再被账号镜像里的旧 `__installPending` 拖住
