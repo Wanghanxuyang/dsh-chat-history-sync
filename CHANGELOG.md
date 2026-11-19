@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.47
+
+- 新增 `report_failed` 导入状态：报告创建失败不再掉回 idle
+- 状态卡/侧栏显示“报告未生成”，并提供“重试导入”
+
 ## 0.12.46
 
 - 新增 `importPhase` 单一状态：idle/pending/deferred/scheduled/reporting/succeeded/failed
