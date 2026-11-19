@@ -72,6 +72,7 @@ if (!clientText.includes('installDeferred && autoInstall')) fail('install remind
 if (indexText.includes('publish({ loginStatus')) fail('login status must be persisted');
 if (!indexText.includes("loginStatus: ''")) fail('stale login status cleanup missing');
 if (!indexText.includes('bootLoginRequest')) fail('new login must not be cleared at startup');
+if (!indexText.includes('void publishPersistent({ runNow: false })')) fail('startup runNow reset must be persistent');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('cleanTitle')) fail('catalog link label sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('\\x00-\\x1f')) fail('catalog filename control-char sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('encodeURIComponent(fname)')) fail('catalog link encoding missing');
