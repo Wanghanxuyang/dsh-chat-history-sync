@@ -96,6 +96,7 @@ if (!clientText.includes("setNotice('')")) fail('transient notice not cleared on
 if (!clientText.includes("flash('已保存'")) fail('saved confirmation notice missing');
 if (!clientText.includes('noticeSeq')) fail('transient notice sequencing missing');
 if (!clientText.includes('同步未触发')) fail('footer trigger failure feedback missing');
+if (!clientText.includes('decodeURIComponent')) fail('report path decode missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
