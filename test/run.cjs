@@ -81,6 +81,7 @@ if (!clientText.includes("autoInstall && /^(安装失败|安装未完成|安装�
 if (!indexText.includes('/^同步失败/.test(String(result')) fail('auth detection must require failure prefix');
 if (!clientText.includes('同步完成：检测到新会话')) fail('pending install prefix missing');
 if (!indexText.includes('数据集损坏|写入失败|全部抓取失败|失败')) fail('partial failure suffix matcher missing');
+if (!indexText.includes('m = line.match(/^\\s*-\\s*(.+)[:：]')) fail('health colon parsing missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
