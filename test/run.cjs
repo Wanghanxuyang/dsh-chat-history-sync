@@ -121,6 +121,7 @@ if (!indexText.includes('Array.from(t).slice(0, 40)')) fail('codepoint-safe acco
 if (!indexText.includes('\\x7f-\\x9f')) fail('C1 control sanitization missing');
 if (!indexText.includes('\\u202a-\\u202e')) fail('bidi control sanitization missing');
 if (!indexText.includes('\\u200b-\\u200f')) fail('zero-width control sanitization missing');
+if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes("'# 参考来源 — '")) fail('source heading sanitization missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
