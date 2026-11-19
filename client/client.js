@@ -127,25 +127,25 @@ window.__ModuleLoader__.load({
       const authFailed = !!meta.authFailed;
       const legacyPhase = meta.succeeded ? 'succeeded'
         : (meta.installScheduled ? 'scheduled'
-          : (/^正在生成导入报告/.test(meta.statusText) ? 'reporting'
-            : (/^导入完成，但报告未生成/.test(meta.statusText) ? 'report_failed'
-              : (/^导入(失败|未完成|调度失败)/.test(meta.statusText) ? 'failed'
+          : (/^正在生成更新报告/.test(meta.statusText) ? 'reporting'
+            : (/^更新完成，但报告未生成/.test(meta.statusText) ? 'report_failed'
+              : (/^更新(失败|未完成|调度失败)/.test(meta.statusText) ? 'failed'
                 : (meta.pending ? 'pending' : (meta.deferred ? 'deferred' : 'idle'))))));
       const phase = meta.importPhase && meta.importPhase !== 'idle' ? meta.importPhase : legacyPhase;
       const restarting = phase === 'scheduled';
       const succeeded = phase === 'succeeded';
       const reporting = phase === 'reporting';
       const reportFailed = phase === 'report_failed';
-      const installReady = !running && !restarting && !succeeded && !reporting && !meta.empty && !meta.noEnabled && (phase === 'pending' || phase === 'report_failed' || phase === 'failed');
-      const blocked = running || restarting || succeeded || reporting || meta.empty || meta.noEnabled || loginWaits || authFailed;
+      const installReady = !running && !restarting && !succeeded && !reporting && !meta.empty && !meta.noEnabled && (phase === 'pending' || phase === 'deferred' || phase === 'report_failed' || phase === 'failed');
+      const blocked = running || restarting || succeeded || reporting || meta.noEnabled || loginWaits;
       React.useEffect(() => {
         if (!meta.installScheduled && !meta.pending && meta.importPhase !== 'pending') setInstalling(false);
       }, [meta.installScheduled, meta.pending, meta.importPhase]);
-      const run = async () => {
-        if (blocked) return;
+      const run = async (fieldOverride) => {
+        if (blocked && !fieldOverride) return;
         setBusy(true);
         setFailed(false);
-        const field = installReady ? 'installNow' : 'runNow';
+        const field = fieldOverride || ((meta.empty || meta.authFailed) ? 'loginRequest' : (installReady ? 'installNow' : 'runNow'));
         if (installReady) setInstalling(true);
         let ok = false;
         try {
@@ -178,32 +178,32 @@ window.__ModuleLoader__.load({
       const dot = (meta.pending || meta.deferred) && !running && !restarting && !succeeded
         ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning, #f5a623)' } })
         : null;
-      let stateTitle = '立即同步聊天历史';
-      if (meta.empty) stateTitle = '请先在设置中登录账号';
+      let stateTitle = '同步到 DSH';
+      if (meta.empty) stateTitle = '点击登录 DeepSeek 账号';
       else if (meta.noEnabled) stateTitle = '请先在设置中启用账号';
-      else if (authFailed) stateTitle = '登录已失效，请先在设置页重新登录';
+      else if (authFailed) stateTitle = '点击重新登录 DeepSeek 账号';
       else if (loginWaits) stateTitle = '等待浏览器登录完成';
-      else if (succeeded) stateTitle = '导入成功，新对话已加入 DSH';
-      else if (restarting) stateTitle = '导入已安排，即将重启 DSH';
-      else if (reporting) stateTitle = '正在生成导入报告…';
-      else if (reportFailed) stateTitle = '报告未生成，点击重试导入';
-      else if (phase === 'failed') stateTitle = '导入失败，点击重试导入';
-      else if (failed) stateTitle = '未触发，点击重试';
+      else if (succeeded) stateTitle = '更新成功，新对话已加入 DSH';
+      else if (restarting) stateTitle = '更新已安排，点击取消更新';
+      else if (reporting) stateTitle = '正在生成更新报告…';
+      else if (reportFailed) stateTitle = '报告未生成，点击重试更新';
+      else if (phase === 'failed') stateTitle = '更新失败，点击重试更新';
+      else if (failed) stateTitle = '操作没完成，点此重试';
       else if (running) stateTitle = '正在同步，可在设置页查看进度';
-      else if (installReady) stateTitle = '新对话待导入，点击立即导入并重启 DSH';
-      else if (installing) stateTitle = '正在安排导入…';
+      else if (installReady) stateTitle = '有会话待更新，点击「更新 DSH」并重启';
+      else if (installing) stateTitle = '正在准备更新…';
       return h('button', {
         type: 'button',
         className: 'msx-footer-action',
         title: stateTitle,
         'aria-label': stateTitle,
         'aria-busy': restarting || reporting || undefined,
-        disabled: blocked,
-        onClick: run,
+        disabled: running || succeeded || reporting || meta.noEnabled || loginWaits,
+        onClick: restarting ? () => run('installCancel') : run,
         onMouseEnter: () => setHover(true),
         onMouseLeave: () => setHover(false),
         style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: hover && !running && !restarting && !succeeded && !reporting ? 'var(--dsw-alias-bg-layer-2)' : 'transparent', color: succeeded ? 'var(--dsw-alias-state-success, #30a46c)' : (restarting ? 'var(--dsw-alias-state-warning, #b86e00)' : 'var(--dsw-alias-label-secondary)'), font: 'inherit', fontSize: 13, fontWeight: succeeded ? 600 : 'normal', cursor: restarting || succeeded || reporting ? 'default' : 'pointer' },
-      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, icon, dot), wide ? h('span', null, succeeded ? '导入成功' : (restarting ? '即将重启' : (reportFailed ? '重试导入' : (reporting ? '生成报告中' : (installing ? '正在安排导入' : (failed ? '未触发' : (installReady ? '立即导入' : (meta.empty ? '未登录' : (meta.noEnabled ? '先启用' : (authFailed ? '需重新登录' : (loginWaits ? '等待登录' : (running ? '正在同步' : '同步聊天历史')))))))))))) : null);
+      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, icon, dot), wide ? h('span', null, succeeded ? '更新成功' : (restarting ? '取消更新' : (reportFailed ? '重试更新' : (reporting ? '生成报告中' : (installing ? '正在准备更新' : (failed ? '重试' : (installReady ? '更新 DSH' : (meta.empty ? '登录账号' : (meta.noEnabled ? '先启用' : (authFailed ? '重新登录' : (loginWaits ? '等待登录' : (running ? '正在同步' : '同步到 DSH')))))))))))) : null);
     }
 
     class SlotBoundary extends React.Component {
@@ -438,6 +438,18 @@ window.__ModuleLoader__.load({
       const setAccounts = (next) => { void write('accounts', JSON.stringify(next), !next.length); };
       const hasAccounts = accounts.some((a) => a && a.enabled !== false);
       const hasAnyAccounts = accounts.length > 0;
+      const updateAvailable = hasAccounts && !!(value && (value.installPending || value.installDeferred)) && !value.installScheduled && !value.installSucceeded;
+      let primaryLabel = '同步到 DSH';
+      let primaryAria = '同步到 DSH';
+      if (!value) { primaryLabel = '加载中'; primaryAria = '加载中'; }
+      else if (restarting) { primaryLabel = '即将重启'; primaryAria = '更新已安排，即将重启 DSH'; }
+      else if (reporting) { primaryLabel = '生成报告中'; primaryAria = '正在生成更新报告'; }
+      else if (loginPending) { primaryLabel = '登录中…'; primaryAria = '等待浏览器登录'; }
+      else if (!hasAccounts) { primaryLabel = hasAnyAccounts ? '先启用' : '登录账号'; primaryAria = hasAnyAccounts ? '请先启用账号' : '登录 DeepSeek 账号'; }
+      else if (running) { primaryLabel = '同步中…'; primaryAria = '同步进行中'; }
+      else if (needRelogin) { primaryLabel = '先重新登录'; primaryAria = '请先重新登录'; }
+      else if (updateAvailable) { primaryLabel = '更新 DSH'; primaryAria = '更新 DSH 并重启'; }
+      const primaryAction = updateAvailable ? () => void write('installNow', true) : (!hasAccounts && !hasAnyAccounts ? login : trigger);
       const patchRow = (i, patch) => { const n = accounts.slice(); n[i] = { ...n[i], ...patch }; setAccounts(n); };
       const loginStatus = value && value.loginStatus;
       const loginPending = /正在打开登录页|请在弹出的浏览器/.test(String(loginStatus || ''));
@@ -445,18 +457,18 @@ window.__ModuleLoader__.load({
       const progressMatch = statusText.match(/正在同步\s+(\d+)\/(\d+)/);
       const progressPct = progressMatch && Number(progressMatch[2]) > 0 ? Math.round((Number(progressMatch[1]) / Number(progressMatch[2])) * 100) : 0;
       const progressText = progressMatch ? '正在同步 ' + progressMatch[1] + '/' + progressMatch[2] : '正在同步…';
-      const actionVisible = autoInstall && /^(导入完成|导入失败|导入未完成|导入调度失败|已安排导入|已取消本次导入|有会话待导入|同步完成，但报告未生成)/.test(statusText);
+      const actionVisible = autoInstall && /^(更新完成|更新失败|更新未完成|更新调度失败|已安排更新|已取消本次更新|有会话待更新|同步完成，但报告未生成)/.test(statusText);
       const importPhase = String((value && value.importPhase) || '');
       const reportFailed = importPhase === 'report_failed';
-      const installFailed = autoInstall && (importPhase === 'failed' || reportFailed || /^(导入失败|导入未完成|导入调度失败)/.test(statusText));
+      const installFailed = autoInstall && (importPhase === 'failed' || reportFailed || /^(更新失败|更新未完成|更新调度失败)/.test(statusText));
       const statusLine = value ? (notice || msg || (running ? progressText : (value.status === 'error' ? String(value.statusText || '同步失败') : (actionVisible ? statusText : (value.lastSyncAt ? '已同步' : '尚未同步'))))) : (notice || msg || '读取中…');
       const pendingText = /^同步完成：检测到新对话/.test(String((value && value.statusText) || ''));
       const pendingInstall = (installPending || pendingText) && autoInstall;
       const needInstall = (!installDeferred && pendingInstall) || reportFailed;
       const restarting = importPhase === 'scheduled' || !!(value && value.installScheduled);
       const reporting = importPhase === 'reporting';
-      const shownStatus = loginPending ? '等待登录…' : (restarting ? '导入已安排 · 即将重启' : (reporting ? '正在生成导入报告…' : (reportFailed ? '导入完成，但报告未生成' : ((!running && pendingText) ? '同步完成 · 待确认导入' : statusLine))));
-      const failed = !!(value && (value.status === 'error' || /^同步失败|^自动同步失败|部分账号失败|^导入失败|^导入未完成|^导入调度失败/.test(String(shownStatus || ''))));
+      const shownStatus = loginPending ? '等待登录…' : (restarting ? '更新已安排 · 即将重启' : (reporting ? '正在生成更新报告…' : (reportFailed ? '更新完成，但报告未生成' : ((!running && pendingText) ? '同步完成 · 待确认更新' : statusLine))));
+      const failed = !!(value && (value.status === 'error' || /^同步失败|^自动同步失败|部分账号失败|^更新失败|^更新未完成|^更新调度失败/.test(String(shownStatus || ''))));
       const needRelogin = failed && /^(同步失败|自动同步失败).*(登录失效|风控|401|403)/.test(statusText);
       const fmtTime = (ts) => {
         try { return new Date(ts).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
@@ -479,20 +491,21 @@ window.__ModuleLoader__.load({
                 h('span', { role: 'status', 'aria-live': running ? 'off' : 'polite', style: { fontSize: 14, fontWeight: 600, color: failed ? 'var(--dsw-alias-state-error)' : 'var(--dsw-alias-label-primary)' } }, shownStatus),
                 !running ? h('i', { 'aria-hidden': 'true', style: { display: 'inline-block', flex: '0 0 auto', width: 6, height: 6, borderRadius: '50%', background: failed ? 'var(--dsw-alias-state-error, #e5484d)' : (pendingInstall ? 'var(--dsw-alias-state-warning, #f5a623)' : (hasAccounts ? 'var(--dsw-alias-state-success, #30a46c)' : 'var(--dsw-alias-label-tertiary, #8b8f98)')) } }) : null,
               ),
-              h('div', { className: 'msx-sub' }, !value ? '正在读取同步设置…' : (loginPending ? '请在弹出的浏览器完成登录。' : (restarting ? '约 20 秒后自动重启 DSH；无需再点。' : (reporting ? '导入已写入，正在生成可见报告。' : (reportFailed ? '导入已写入，但报告会话未生成；可重试导入。' : (running ? '后台同步中，可离开此页。' : (!hasAccounts ? (hasAnyAccounts ? '先启用账号，再同步。' : '先登录账号，再同步。') : (installFailed ? '可稍后重试导入。' : (needRelogin ? '登录失效，请点「重新登录」。' : (failed ? '可重试，或查看报告。' : '同步时可离开此页。')))))))))),
+              h('div', { className: 'msx-sub' }, !value ? '正在读取同步设置…' : (loginPending ? '请在弹出的浏览器完成登录。' : (restarting ? '约 20 秒后重启 DSH；可在侧栏或设置中点「取消更新」。' : (reporting ? '更新已写入，正在生成可见报告。' : (reportFailed ? '更新已写入，但报告会话未生成；可重试更新。' : (running ? '后台同步中，可离开此页。' : (!hasAccounts ? (hasAnyAccounts ? '先启用账号，再同步。' : '先登录账号，再同步。') : (installFailed ? '可稍后重试更新。' : (needRelogin ? '登录失效，请点「重新登录」。' : (failed ? '可重试，或查看报告。' : '同步时可离开此页。')))))))))),
             ),
             h('div', { style: { display: 'flex', gap: 8, flexShrink: 0 } },
               loginPending ? h('button', { className: 'msx-btn', disabled: busy, 'aria-label': '取消登录', onClick: () => void write('loginCancel', Date.now()) }, '取消登录') : null,
               running ? h('button', { className: 'msx-btn', disabled: busy, 'aria-label': '取消当前同步', onClick: () => void write('cancelSync', true) }, '取消') : null,
+              restarting ? h('button', { className: 'msx-btn', disabled: busy, 'aria-label': '取消本次更新', onClick: () => void write('installCancel', true) }, '取消更新') : null,
               needRelogin ? h('button', { className: 'msx-btn', disabled: busy || running || loginPending, 'aria-label': '重新登录 DeepSeek 账号', onClick: () => void write('loginRequest', Date.now()) }, '重新登录') : null,
-              h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running || restarting || reporting || !value || loginPending || needRelogin || (hasAnyAccounts && !hasAccounts), 'aria-label': !value ? '加载中' : (restarting ? '导入已安排，即将重启 DSH' : (reporting ? '正在生成导入报告' : (loginPending ? '等待浏览器登录' : (!hasAccounts ? (hasAnyAccounts ? '请先启用账号' : '登录 DeepSeek 账号') : (running ? '同步进行中' : (needRelogin ? '请先重新登录' : '立即同步聊天历史')))))), onClick: !hasAccounts && !hasAnyAccounts ? login : trigger }, !value ? '加载中' : (restarting ? '即将重启' : (reporting ? '生成报告中' : (loginPending ? '登录中…' : (!hasAccounts ? (hasAnyAccounts ? '先启用' : '登录账号') : (running ? '同步中…' : (needRelogin ? '先重新登录' : '立即同步'))))))),
+              h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running || restarting || reporting || !value || loginPending || needRelogin || (hasAnyAccounts && !hasAccounts), 'aria-label': primaryAria, onClick: primaryAction }, primaryLabel),
             ),
           ),
           running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-valuenow': progressMatch ? progressPct : undefined, 'aria-valuetext': progressMatch ? '同步 ' + progressMatch[1] + '/' + progressMatch[2] : '同步进行中' }, h('i', null)) : null,
           (value && (value.lastSyncAt || value.reportText || (installDeferred && autoInstall))) ? h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderTop: '1px solid var(--dsw-alias-border-l1)', padding: '9px 16px', flexWrap: 'wrap' } },
-            h('span', { className: 'msx-sub', 'aria-label': installDeferred ? '有会话待导入' : (value.lastSyncAt ? '上次同步 ' + fmtTime(value.lastSyncAt) : '还没有同步记录'), title: value && value.lastSyncResult ? String(value.lastSyncResult).slice(0, 300) : undefined, style: { marginTop: 0, color: installDeferred ? 'var(--dsw-alias-state-warning, #b86e00)' : undefined } }, installDeferred ? '有会话待导入' : (value.lastSyncAt ? '上次同步 ' + fmtTime(value.lastSyncAt) : '还没有同步记录')),
+            h('span', { className: 'msx-sub', 'aria-label': installDeferred ? '有会话待更新' : (value.lastSyncAt ? '上次同步 ' + fmtTime(value.lastSyncAt) : '还没有同步记录'), title: value && value.lastSyncResult ? String(value.lastSyncResult).slice(0, 300) : undefined, style: { marginTop: 0, color: installDeferred ? 'var(--dsw-alias-state-warning, #b86e00)' : undefined } }, installDeferred ? '有会话待更新' : (value.lastSyncAt ? '上次同步 ' + fmtTime(value.lastSyncAt) : '还没有同步记录')),
             h('div', { style: { display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 } },
-              installDeferred ? h('button', { className: 'msx-linkbtn', disabled: busy || running, onClick: () => void write('installNow', true) }, '导入') : null,
+              installDeferred ? h('button', { className: 'msx-linkbtn', disabled: busy || running, onClick: () => void write('installNow', true) }, '更新') : null,
               (value.reportText) ? h('button', { className: 'msx-linkbtn', style: { flexShrink: 0 }, 'aria-expanded': reportOpen, title: duplicateCount > 0 ? duplicateCount + ' 组同名但内容不同的会话已分别保留，点开报告查看' : undefined, 'aria-label': duplicateCount > 0 ? '查看报告，含 ' + duplicateCount + ' 组同名会话' : '查看报告', onClick: () => setReportOpen(!reportOpen) }, reportOpen ? '收起报告' : (duplicateCount > 0 ? '查看报告 · ' + duplicateCount + ' 组同名' : '查看报告')) : null,
             ),
           ) : null,
@@ -502,7 +515,7 @@ window.__ModuleLoader__.load({
           ) : null,
         ),
 
-        // 有新对话时：先确认，再导入并重启
+        // 有新对话时：先确认，再更新并重启
         needInstall ? h('div', {
           className: 'msx-card',
           role: installFailed ? 'alert' : undefined,
@@ -523,16 +536,16 @@ window.__ModuleLoader__.load({
             } }, installFailed ? '!' : '↓'),
             h('div', { style: { minWidth: 0, flex: 1 } },
               h('div', { style: { display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' } },
-                h('div', { className: 'msx-label', style: { fontSize: 14 } }, reportFailed ? '报告未生成' : (installFailed ? '导入未完成' : '检测到新对话')),
+                h('div', { className: 'msx-label', style: { fontSize: 14 } }, reportFailed ? '报告未生成' : (installFailed ? '更新未完成' : '检测到新对话')),
                 h('span', { style: {
                   fontSize: 11, lineHeight: '16px', padding: '1px 7px', borderRadius: 999,
                   background: installFailed ? 'rgba(229,72,77,.12)' : 'rgba(245,166,35,.16)',
                   color: installFailed ? 'var(--dsw-alias-state-error, #e5484d)' : 'var(--dsw-alias-state-warning, #b86e00)',
                 } }, installFailed ? '可重试' : '待确认'),
               ),
-              h('div', { className: 'msx-sub', style: { marginTop: 4, lineHeight: 1.5 } }, reportFailed ? '导入已写入，但报告会话未生成。重试会再次导入并重启 DSH。' : (installFailed ? '待导入状态已保留。重试会再次重启 DSH。' : '加入 DSH 会重启一次；请先完成当前回复。')),
+              h('div', { className: 'msx-sub', style: { marginTop: 4, lineHeight: 1.5 } }, reportFailed ? '更新已写入，但报告会话未生成。重试会再次更新并重启 DSH。' : (installFailed ? '待更新状态已保留。重试会再次重启 DSH。' : '更新 DSH 会重启一次；当前输入会丢失，请先发送或保存。')),
               h('div', { style: { display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' } },
-                h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running, 'aria-label': (installFailed || reportFailed) ? '重试导入并重启 DSH' : '现在加入并重启 DSH', onClick: () => void write('installNow', true) }, (installFailed || reportFailed) ? '重试导入' : '现在加入并重启'),
+                (installFailed || reportFailed) ? h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running, 'aria-label': '重试更新并重启 DSH', onClick: () => void write('installNow', true) }, '重试更新') : null,
                 h('button', { className: 'msx-btn', disabled: busy, 'aria-label': '稍后再说', onClick: () => void write('installCancel', true) }, '稍后再说'),
               ),
             ),
@@ -591,8 +604,9 @@ window.__ModuleLoader__.load({
         // 同步设置
         h('section', null,
           h('h3', { className: 'msx-h3' }, '同步设置'),
+          h('div', { className: 'msx-sub', style: { margin: '0 0 10px' } }, '登录后点一次同步；有新内容才提示更新，更新会重启一次。其余默认即可。'),
           h('div', { className: 'msx-card' },
-            h('div', { className: 'msx-row' },
+            advOpen ? h('div', { className: 'msx-row' },
               h('div', null,
                 h('div', { className: 'msx-label' }, '附件下载'),
                 h('div', { className: 'msx-sub' }, modeText),
@@ -603,29 +617,29 @@ window.__ModuleLoader__.load({
                 h('option', { value: 'images' }, '只保存图片'),
                 h('option', { value: 'none' }, '只记录文件名'),
               ),
-            ),
+            ) : null,
             h('label', { className: 'msx-row', style: { cursor: 'pointer' } },
               h('div', null,
                 h('div', { className: 'msx-label' }, '每小时自动同步'),
-                h('div', { className: 'msx-sub' }, '有变化才生成同步报告'),
+                h('div', { className: 'msx-sub' }, '有变化才追加更新记录'),
               ),
               h('input', { type: 'checkbox', checked: auto, disabled: busy, 'aria-label': '每小时自动同步', onChange: (e) => void write('autoSync', e.target.checked) }),
             ),
             h('label', { className: 'msx-row', style: { cursor: 'pointer' } },
               h('div', null,
-                h('div', { className: 'msx-label' }, '新对话导入提醒'),
-                h('div', { className: 'msx-sub' }, '有新增时提示导入（确认后才重启）'),
+                h('div', { className: 'msx-label' }, '有新对话时提示更新 DSH'),
+                h('div', { className: 'msx-sub' }, '确认后才重启；不会自动重启'),
               ),
-              h('input', { type: 'checkbox', checked: autoInstall, disabled: busy, 'aria-label': '新对话导入提醒', onChange: (e) => void write('autoInstall', e.target.checked) }),
+              h('input', { type: 'checkbox', checked: autoInstall, disabled: busy, 'aria-label': '有新对话时提示更新 DSH', onChange: (e) => void write('autoInstall', e.target.checked) }),
             ),
             h('div', { className: 'msx-row' },
-              h('button', { className: 'msx-linkbtn', 'aria-expanded': advOpen, onClick: () => setAdvOpen(!advOpen) }, advOpen ? '收起更多设置 ▴' : '更多设置 ▾'),
+              h('button', { className: 'msx-linkbtn', 'aria-expanded': advOpen, onClick: () => setAdvOpen(!advOpen) }, advOpen ? '收起高级设置 ▴' : '高级设置 ▾'),
             ),
             advOpen ? h('div', null,
               h('label', { className: 'msx-row', style: { cursor: 'pointer' } },
                 h('div', null,
                   h('div', { className: 'msx-label' }, '系统通知'),
-                  h('div', { className: 'msx-sub' }, '仅在失败、待导入或导入状态变化时提醒'),
+                  h('div', { className: 'msx-sub' }, '仅在失败、待更新或更新状态变化时提醒'),
                 ),
                 h('input', { type: 'checkbox', checked: notifyOn, disabled: busy, 'aria-label': '系统通知', onChange: (e) => void write('notifyEnabled', e.target.checked) }),
               ),
@@ -635,6 +649,9 @@ window.__ModuleLoader__.load({
                   h('div', { className: 'msx-sub' }, '需开启自动同步；有变化时 9:00 后发一条摘要'),
                 ),
                 h('input', { type: 'checkbox', checked: digestOn, disabled: busy, 'aria-label': '每日汇总', onChange: (e) => void write('digestEnabled', e.target.checked) }),
+              ),
+              h('div', { className: 'msx-row' },
+                h('button', { className: 'msx-linkbtn', disabled: busy, 'aria-label': '整理旧同步报告，只归档插件报告，不删除聊天', onClick: () => void write('archiveOldReports', true) }, '整理旧同步报告'),
               ),
               h('div', { className: 'msx-row' },
                 h('button', { className: 'msx-linkbtn', disabled: busy, 'aria-label': '导出脱敏诊断信息，不含登录信息', onClick: () => void write('exportDiagnostics', true) }, '导出诊断（不含登录信息）'),
@@ -661,7 +678,7 @@ window.__ModuleLoader__.load({
           name: 'sidebar.footer.action',
           id: 'chat-history-sync',
           order: 27,
-          label: () => '同步聊天历史',
+          label: () => '同步到 DSH',
         }, FooterSafe));
       },
     };
