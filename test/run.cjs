@@ -114,6 +114,7 @@ if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').in
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes('copyFileSync(oldDest, dest)')) fail('non-destructive attachment migration missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes('replace(/[\\r\\n\\t]+/g')) fail('progress title sanitization missing');
 if (!indexText.includes('const cleanLabel =')) fail('account label sanitization missing');
+if (!indexText.includes('settingsWriteChain')) fail('settings write serialization missing');
 if (!indexText.includes('cleanLabel((hit && hit.name)')) fail('account mirror label sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes("if (fs.existsSync(dest) && fs.statSync(dest).size === f.size) { fOk += 1; continue; }")) fail('existing attachment count order missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes('copyFileSync(tmp, dest)')) fail('download rename fallback missing');
