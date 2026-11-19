@@ -51,6 +51,7 @@ if (!indexText.includes('没有账号成功同步')) fail('all-accounts-failed s
 if (!indexText.includes('缺少 token 或数据文件')) fail('unready account guard missing');
 if (!indexText.includes('/^PROGRESS\\t/')) fail('old sync log title scrub missing');
 if (!indexText.includes('cleanupProfile')) fail('login error cleanup missing');
+if (!indexText.includes('cleanupRunnerPid')) fail('login runner cleanup missing');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
 if (!clientText.includes('重新登录')) fail('relogin action missing');
 if (!clientText.includes('登录失效，请点')) fail('auth failure hint missing');
