@@ -257,7 +257,7 @@ window.__ModuleLoader__.load({
               setRevision(ns.revision);
               setValue((cur) => {
                 const next = { ...(cur || {}) };
-                for (const k of ['accounts', 'attachmentMode', 'autoSync', 'autoInstall', 'installPending', 'installNow', 'installDeferred', 'duplicateCount', 'notifyEnabled', 'digestEnabled', 'lastSyncAt', 'lastSyncResult', 'accountHealth', 'attachmentStats', 'reportTargetSessionId', 'loginStatus', 'loginRequest', 'status', 'statusText', 'reportText']) if (v[k] !== undefined) next[k] = v[k];
+                for (const k of ['accounts', 'attachmentMode', 'autoSync', 'autoInstall', 'installPending', 'installNow', 'installDeferred', 'installDeferredByUser', 'duplicateCount', 'notifyEnabled', 'digestEnabled', 'lastSyncAt', 'lastSyncResult', 'accountHealth', 'attachmentStats', 'reportTargetSessionId', 'loginStatus', 'loginRequest', 'status', 'statusText', 'reportText']) if (v[k] !== undefined) next[k] = v[k];
                 return next;
               });
             }
