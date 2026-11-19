@@ -85,6 +85,7 @@ if (!indexText.includes('m = line.match(/^\\s*-\\s*(.+)[:：]')) fail('health co
 if (!clientText.includes('同步失败|自动同步失败')) fail('auto auth failure hint missing');
 if (!indexText.includes('const msg = \'自动同步失败：\'')) fail('auto error result missing');
 if (!indexText.includes('lastAutoInstall')) fail('install reminder re-enable missing');
+if (!indexText.includes('installDeferred && cfgGet')) fail('startup deferred install restore missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
