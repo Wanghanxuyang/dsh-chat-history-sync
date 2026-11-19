@@ -145,7 +145,7 @@ if (!indexText.includes('replace(/[\\x00-\\x1f\\x7f-\\x9f\\u200b-\\u200f\\u202a-
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('\\x00-\\x1f')) fail('installer control-char sanitization missing');
 if (!indexText.includes('noChangeText')) fail('auto no-change partial failure lost');
 if (!indexText.includes('!/^ - /.test(line)')) fail('old account summary log scrub missing');
-if (!clientText.includes('上次安装失败')) fail('install failure card copy missing');
+if (!clientText.includes('安装未完成')) fail('install failure card copy missing');
 if (!indexText.includes('patch.accountHealth = JSON.stringify(health)')) fail('account health not cleared on success');
 if (!indexText.includes('^(.+):\\s*总数')) fail('account name with spaces not supported');
 if (!clientText.includes('installDeferred && autoInstall')) fail('install reminder off not honored');
