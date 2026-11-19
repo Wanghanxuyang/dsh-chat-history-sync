@@ -72,6 +72,7 @@ if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').in
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes("conv.__key + '|'")) fail('attachment index must use account key');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('idTag')) fail('catalog hash tag missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'export.cjs'), 'utf8').includes('idTag')) fail('export hash tag missing');
+if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes("getRetry('https://chat.deepseek.com/api/v0/chat/history_messages")) fail('history fetch retry missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
