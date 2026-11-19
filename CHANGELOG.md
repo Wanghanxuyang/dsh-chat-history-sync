@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.62
+
+- 登录异常文本脱敏 Bearer token 和 `token=` 查询参数
+- 新增诊断导出/运行配置清理的隐私测试
+
 ## 0.12.61
 
 - DPAPI 明文 token 改为通过 stdin 传入 PowerShell，不再出现在进程命令行
