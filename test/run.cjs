@@ -77,6 +77,7 @@ if (!clientText.includes('autoInstall && /安装完成')) fail('install status n
 if (indexText.includes('lastPublish')) fail('unused lastPublish variable');
 if (!clientText.includes("needRelogin ? '先重新登录'")) fail('auth failure primary action not guarded');
 if (!clientText.includes('需重新登录')) fail('footer auth failure guard missing');
+if (!indexText.includes("status: 'idle', statusText: ''")) fail('relogin does not clear auth failure');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('cleanTitle')) fail('catalog link label sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('\\x00-\\x1f')) fail('catalog filename control-char sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('encodeURIComponent(fname)')) fail('catalog link encoding missing');
