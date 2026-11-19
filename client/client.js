@@ -90,7 +90,7 @@ window.__ModuleLoader__.load({
     function FooterEntry({ wide }) {
       const [busy, setBusy] = React.useState(false);
       const [hover, setHover] = React.useState(false);
-      const [meta, setMeta] = React.useState({ running: false, pending: false, deferred: false, empty: false, noEnabled: false });
+      const [meta, setMeta] = React.useState({ running: false, pending: false, deferred: false, empty: false, noEnabled: false, loginWaits: false });
       React.useEffect(() => {
         let alive = true;
         const tick = async () => {
@@ -103,7 +103,7 @@ window.__ModuleLoader__.load({
             if (alive && ns) {
               let accounts = [];
               try { accounts = JSON.parse((ns.value && ns.value.accounts) || '[]'); } catch (e) { accounts = []; }
-              setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending), deferred: !!(ns.value && ns.value.installDeferred), empty: !accounts.length, noEnabled: accounts.length > 0 && !accounts.some((a) => a && a.enabled !== false) });
+              setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending), deferred: !!(ns.value && ns.value.installDeferred), empty: !accounts.length, noEnabled: accounts.length > 0 && !accounts.some((a) => a && a.enabled !== false), loginWaits: /正在打开登录页|请在弹出的浏览器/.test(String((ns.value && ns.value.loginStatus) || '')) });
             }
           } catch (e) {}
         };
@@ -112,8 +112,10 @@ window.__ModuleLoader__.load({
         return () => { alive = false; clearInterval(id); };
       }, []);
       const running = busy || meta.running;
+      const loginWaits = !!meta.loginWaits;
+      const blocked = running || meta.empty || meta.noEnabled || loginWaits;
       const run = async () => {
-        if (running || meta.empty || meta.noEnabled) return;
+        if (blocked) return;
         setBusy(true);
         try {
           const res = await clientCtx.remote.settings.describe();
@@ -129,15 +131,15 @@ window.__ModuleLoader__.load({
       return h('button', {
         type: 'button',
         className: 'msx-footer-action',
-        title: meta.empty ? '请先在设置中登录账号' : (meta.noEnabled ? '请先在设置中启用账号' : (running ? '正在同步，可在设置页查看进度' : '立即同步聊天历史')),
-        'aria-label': meta.empty ? '未登录，请先在设置中登录账号' : (meta.noEnabled ? '未启用账号，请先在设置中启用' : (running ? '正在同步聊天历史' : '立即同步聊天历史')),
+        title: meta.empty ? '请先在设置中登录账号' : (meta.noEnabled ? '请先在设置中启用账号' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步，可在设置页查看进度' : '立即同步聊天历史'))),
+        'aria-label': meta.empty ? '未登录，请先在设置中登录账号' : (meta.noEnabled ? '未启用账号，请先在设置中启用' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步聊天历史' : '立即同步聊天历史'))),
         'aria-busy': running || undefined,
-        disabled: running || meta.empty || meta.noEnabled,
+        disabled: blocked,
         onClick: run,
         onMouseEnter: () => setHover(true),
         onMouseLeave: () => setHover(false),
         style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: hover && !running ? 'var(--dsw-alias-bg-layer-2)' : 'transparent', color: 'var(--dsw-alias-label-secondary)', font: 'inherit', fontSize: 13, cursor: 'pointer' },
-      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, running ? '…' : '↻', (meta.pending || meta.deferred) && !running ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning, #f5a623)' } }) : null), wide ? h('span', null, meta.empty ? '未登录' : (meta.noEnabled ? '先启用' : (running ? '正在同步' : '同步聊天历史'))) : null);
+      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, running ? '…' : '↻', (meta.pending || meta.deferred) && !running ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning, #f5a623)' } }) : null), wide ? h('span', null, meta.empty ? '未登录' : (meta.noEnabled ? '先启用' : (loginWaits ? '等待登录' : (running ? '正在同步' : '同步聊天历史')))) : null);
     }
 
     class SlotBoundary extends React.Component {
