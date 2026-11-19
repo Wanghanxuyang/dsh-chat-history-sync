@@ -10,6 +10,7 @@
 
 - Runtime data stays in the DSH profile's `.dsh-chat-history-sync` directory
 - Tokens are stored as Windows DPAPI `tokenEnc`; plaintext `token`, `phone`, and `email` are removed on load/save
+- During login, `login-result.json` may temporarily contain the browser token; the host deletes it immediately after reading, and startup cleanup removes any leftover file. It is never uploaded or logged.
 - `run-config.json` and `login-result.json` are deleted at startup; stale temporary Edge profiles are removed after 30 minutes
 - Diagnostic export contains counts and status only, not logs, account names, tokens, or phone numbers
 
