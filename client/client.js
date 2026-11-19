@@ -293,9 +293,11 @@ window.__ModuleLoader__.load({
         return () => clearInterval(t);
       }, []);
 
+      const noticeSeq = React.useRef(0);
       const flash = (text, ms = 8000) => {
+        const seq = ++noticeSeq.current;
         setNotice(text);
-        setTimeout(() => setNotice((cur) => (cur === text ? '' : cur)), ms);
+        setTimeout(() => { if (seq === noticeSeq.current) setNotice((cur) => (cur === text ? '' : cur)); }, ms);
       };
       const write = async (field, v, clearAccounts = false) => {
         setBusy(true);
