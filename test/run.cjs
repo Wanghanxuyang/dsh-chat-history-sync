@@ -97,6 +97,7 @@ if (!clientText.includes("flash('已保存'")) fail('saved confirmation notice m
 if (!clientText.includes('noticeSeq')) fail('transient notice sequencing missing');
 if (!clientText.includes("'未触发'")) fail('footer trigger failure feedback missing');
 if (!clientText.includes('installReady')) fail('footer install action missing');
+if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes("const label = String(acc.prefix")) fail('account prefix display missing');
 if (!clientText.includes('decodeURIComponent')) fail('report path decode missing');
 if (!indexText.includes("if (!t || t === '.' || t === '..') return '';")) fail('invalid account name fallback must be unique');
 if (!indexText.includes('const nextPrefix =')) fail('empty account prefix fallback missing');
