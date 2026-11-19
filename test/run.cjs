@@ -69,6 +69,7 @@ if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').in
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes('if (!batch.length) break;')) fail('pagination empty-page guard missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes('写入失败，已保留旧数据')) fail('per-account write isolation missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('keyVersion: KEY_VERSION')) fail('manifest key version missing');
+if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes("conv.__key + '|'")) fail('attachment index must use account key');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
@@ -106,7 +107,7 @@ if ((clientText.match(/loginCancel/g) || []).length > 1) fail('duplicate cancel-
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes('\\x00-\\x1f')) fail('sync attachment names must sanitize control chars');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes("|| '未命名'")) fail('empty attachment dir fallback missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes("safe(conv.title) || '未命名'")) fail('installer empty title fallback missing');
-if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes("k.startsWith(conv.__prefix + '|')")) fail('attachment fallback must stay within account');
+if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes("k.startsWith(conv.__key + '|')")) fail('attachment fallback must stay within account');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('cleanTitle')) fail('catalog link label sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('\\x00-\\x1f')) fail('catalog filename control-char sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('encodeURIComponent(fname)')) fail('catalog link encoding missing');
