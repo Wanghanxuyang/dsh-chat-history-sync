@@ -66,6 +66,7 @@ if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').in
 if (!indexText.includes('noChangeText')) fail('auto no-change partial failure lost');
 if (!indexText.includes('!/^ - /.test(line)')) fail('old account summary log scrub missing');
 if (!clientText.includes('上次安装失败')) fail('install failure card copy missing');
+if (!indexText.includes('patch.accountHealth = JSON.stringify(health)')) fail('account health not cleared on success');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('cleanTitle')) fail('catalog link label sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('\\x00-\\x1f')) fail('catalog filename control-char sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('encodeURIComponent(fname)')) fail('catalog link encoding missing');
