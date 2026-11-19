@@ -117,6 +117,7 @@ if (!indexText.includes('const cleanLabel =')) fail('account label sanitization 
 if (!indexText.includes('cleanLabel((hit && hit.name)')) fail('account mirror label sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes("if (fs.existsSync(dest) && fs.statSync(dest).size === f.size) { fOk += 1; continue; }")) fail('existing attachment count order missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes('copyFileSync(tmp, dest)')) fail('download rename fallback missing');
+if (!indexText.includes('Array.from(t).slice(0, 40)')) fail('codepoint-safe account prefix missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
