@@ -481,9 +481,6 @@ window.__ModuleLoader__.load({
           ) : null,
           h('button', { className: 'msx-dashed', disabled: busy || running || loginPending, 'aria-label': '登录新的 DeepSeek 账号', onClick: login }, '＋ 登录新账号'),
 
-          (value && value.loginStatus && /请在弹出的浏览器|正在打开登录页/.test(String(value.loginStatus)))
-            ? h('button', { className: 'msx-btn', style: { marginTop: 8 }, disabled: busy, onClick: () => void write('loginCancel', Date.now()) }, '取消登录')
-            : null,
           loginStatus ? h('div', { className: 'msx-sub', style: { marginTop: 8 } }, loginStatus) : null,
           h('div', { className: 'msx-sub', style: { marginTop: 8 } }, '移除账号只停止同步，不删除已归档会话。'),
         ),
