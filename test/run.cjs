@@ -118,6 +118,7 @@ if (!indexText.includes('cleanLabel((hit && hit.name)')) fail('account mirror la
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes("if (fs.existsSync(dest) && fs.statSync(dest).size === f.size) { fOk += 1; continue; }")) fail('existing attachment count order missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes('copyFileSync(tmp, dest)')) fail('download rename fallback missing');
 if (!indexText.includes('Array.from(t).slice(0, 40)')) fail('codepoint-safe account prefix missing');
+if (!indexText.includes('\\x7f-\\x9f')) fail('C1 control sanitization missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
@@ -130,7 +131,7 @@ if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'export.cjs'), 'utf8').inc
 if (!indexText.includes('workspace: !!ws')) fail('diagnostics must not expose workspace path');
 if (!indexText.includes('statusTextLength')) fail('diagnostics must not expose status text');
 if (!indexText.includes("createHash('sha256')")) fail('prefix marker must hash account names');
-if (!indexText.includes('replace(/[\\x00-\\x1f\\\\/:*?"<>|]/g')) fail('safeName control-char sanitization missing');
+if (!indexText.includes('replace(/[\\x00-\\x1f\\x7f-\\x9f\\\\/:*?"<>|]/g')) fail('safeName control-char sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('\\x00-\\x1f')) fail('installer control-char sanitization missing');
 if (!indexText.includes('noChangeText')) fail('auto no-change partial failure lost');
 if (!indexText.includes('!/^ - /.test(line)')) fail('old account summary log scrub missing');
