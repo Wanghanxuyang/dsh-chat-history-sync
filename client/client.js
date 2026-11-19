@@ -13,6 +13,7 @@ window.__ModuleLoader__.load({
     const EditableField = ({ value, placeholder, disabled, width, bold, label, onCommit }) => {
       const [v, setV] = React.useState(value || '');
       const editing = React.useRef(false);
+      const cancelled = React.useRef(false);
       React.useEffect(() => { if (!editing.current) setV(value || ''); }, [value]);
       return h('input', {
         className: 'msx-input',
@@ -22,12 +23,16 @@ window.__ModuleLoader__.load({
         'aria-label': label || placeholder || '输入',
         disabled,
         style: { width, fontWeight: bold ? 600 : 400 },
-        onFocus: () => { editing.current = true; },
+        onFocus: () => { editing.current = true; cancelled.current = false; },
         onChange: (e) => setV(e.target.value),
-        onBlur: () => { editing.current = false; if (v !== (value || '')) onCommit(v); },
+        onBlur: () => {
+          editing.current = false;
+          if (cancelled.current) { cancelled.current = false; setV(value || ''); return; }
+          if (v !== (value || '')) onCommit(v);
+        },
         onKeyDown: (e) => {
           if (e.key === 'Enter') e.currentTarget.blur();
-          if (e.key === 'Escape') { setV(value || ''); editing.current = false; e.currentTarget.blur(); }
+          if (e.key === 'Escape') { cancelled.current = true; setV(value || ''); e.currentTarget.blur(); }
         },
       });
     };
