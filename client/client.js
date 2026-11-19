@@ -103,7 +103,7 @@ window.__ModuleLoader__.load({
             if (alive && ns) {
               let accounts = [];
               try { accounts = JSON.parse((ns.value && ns.value.accounts) || '[]'); } catch (e) { accounts = []; }
-              setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending), deferred: !!(ns.value && ns.value.installDeferred), empty: !accounts.length, noEnabled: accounts.length > 0 && !accounts.some((a) => a && a.enabled !== false), loginWaits: /正在打开登录页|请在弹出的浏览器/.test(String((ns.value && ns.value.loginStatus) || '')) });
+              setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending) && ns.value.autoInstall !== false, deferred: !!(ns.value && ns.value.installDeferred) && ns.value.autoInstall !== false, empty: !accounts.length, noEnabled: accounts.length > 0 && !accounts.some((a) => a && a.enabled !== false), loginWaits: /正在打开登录页|请在弹出的浏览器/.test(String((ns.value && ns.value.loginStatus) || '')) });
             }
           } catch (e) {}
         };
@@ -374,7 +374,7 @@ window.__ModuleLoader__.load({
       const installFailed = /安装失败|安装未完成|安装调度失败/.test(statusText);
       const statusLine = value ? (msg || (running ? progressText : (value.status === 'error' ? String(value.statusText || '同步失败') : (actionVisible ? statusText : (value.lastSyncAt ? '已同步' : '尚未同步'))))) : (msg || '读取中…');
       const pendingText = /检测到新会话/.test(String((value && value.statusText) || ''));
-      const pendingInstall = installPending || pendingText;
+      const pendingInstall = (installPending || pendingText) && autoInstall;
       const needInstall = !installDeferred && pendingInstall;
       const shownStatus = loginPending ? '等待登录…' : ((!running && pendingText) ? '同步完成 · 待确认安装' : statusLine);
       const failed = !!(value && (value.status === 'error' || /失败|失效/.test(String(shownStatus || ''))));
@@ -410,7 +410,7 @@ window.__ModuleLoader__.load({
             ),
           ),
           running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuetext': progressMatch ? '同步 ' + progressMatch[1] + '/' + progressMatch[2] : '同步进行中' }, h('i', null)) : null,
-          (value && (value.lastSyncAt || value.reportText || installDeferred)) ? h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderTop: '1px solid var(--dsw-alias-border-l1)', padding: '9px 16px', flexWrap: 'wrap' } },
+          (value && (value.lastSyncAt || value.reportText || (installDeferred && autoInstall))) ? h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderTop: '1px solid var(--dsw-alias-border-l1)', padding: '9px 16px', flexWrap: 'wrap' } },
             h('span', { className: 'msx-sub', 'aria-label': installDeferred ? '有会话待安装' : (value.lastSyncAt ? '上次同步 ' + fmtTime(value.lastSyncAt) : '还没有同步记录'), title: value && value.lastSyncResult ? String(value.lastSyncResult).slice(0, 300) : undefined, style: { marginTop: 0, color: installDeferred ? 'var(--dsw-alias-state-warning, #b86e00)' : undefined } }, installDeferred ? '有会话待安装' : (value.lastSyncAt ? '上次同步 ' + fmtTime(value.lastSyncAt) : '还没有同步记录')),
             h('div', { style: { display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 } },
               installDeferred ? h('button', { className: 'msx-linkbtn', disabled: busy, onClick: () => void write('installNow', true) }, '安装') : null,
