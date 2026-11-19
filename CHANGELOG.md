@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.40
+
+- 安装脚本在已 taskkill 并等待 DSH 退出后传 `--assume-dsh-stopped`，避免进程检查误判导致安装器在写盘前退出
+- 用 PowerShell 完整验证安装脚本：返回 `{ok:true,code:0}`
+
 ## 0.12.39
 
 - 安装重启脚本改用 `node.exe` 执行内置安装器，不再依赖 Electron 的 `ELECTRON_RUN_AS_NODE`
