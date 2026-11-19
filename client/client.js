@@ -133,7 +133,14 @@ window.__ModuleLoader__.load({
           const list = (doc && doc.namespaces) || [];
           const ns = list.find((n) => n.ns === NS) || list.find((n) => String(n.ns).endsWith(':' + NS) || String(n.ns).endsWith('/' + NS));
           if (!ns) return;
-          await clientCtx.remote.settings.mutate(ns.ns, [{ op: 'set', path: ['runNow'], value: true }], ns.revision || 0);
+          let r = await clientCtx.remote.settings.mutate(ns.ns, [{ op: 'set', path: ['runNow'], value: true }], ns.revision || 0);
+          if (!r || !r.ok) {
+            const freshRes = await clientCtx.remote.settings.describe();
+            const freshDoc = freshRes && freshRes.ok ? freshRes.value : null;
+            const freshList = (freshDoc && freshDoc.namespaces) || [];
+            const freshNs = freshList.find((n) => n.ns === NS) || freshList.find((n) => String(n.ns).endsWith(':' + NS) || String(n.ns).endsWith('/' + NS));
+            if (freshNs) await clientCtx.remote.settings.mutate(freshNs.ns, [{ op: 'set', path: ['runNow'], value: true }], freshNs.revision || 0);
+          }
         } catch (e) {} finally {
           setTimeout(() => setBusy(false), 5000);
         }
