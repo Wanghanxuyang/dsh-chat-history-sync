@@ -445,7 +445,7 @@ window.__ModuleLoader__.load({
       const progressMatch = statusText.match(/正在同步\s+(\d+)\/(\d+)/);
       const progressPct = progressMatch && Number(progressMatch[2]) > 0 ? Math.round((Number(progressMatch[1]) / Number(progressMatch[2])) * 100) : 0;
       const progressText = progressMatch ? '正在同步 ' + progressMatch[1] + '/' + progressMatch[2] : '正在同步…';
-      const actionVisible = autoInstall && /^(导入完成|导入失败|导入未完成|导入调度失败|已安排导入|已取消本次导入|有会话待导入)/.test(statusText);
+      const actionVisible = autoInstall && /^(导入完成|导入失败|导入未完成|导入调度失败|已安排导入|已取消本次导入|有会话待导入|同步完成，但报告未生成)/.test(statusText);
       const importPhase = String((value && value.importPhase) || '');
       const reportFailed = importPhase === 'report_failed';
       const installFailed = autoInstall && (importPhase === 'failed' || reportFailed || /^(导入失败|导入未完成|导入调度失败)/.test(statusText));
