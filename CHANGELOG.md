@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.98
+
+- “已保存”改用 transient notice，状态轮询不会在 1.5 秒内把它清掉
+
 ## 0.11.97
 
 - 保存/触发/登录成功后清空旧 transient notice，避免成功仍显示上次失败
