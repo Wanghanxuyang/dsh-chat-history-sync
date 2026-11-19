@@ -34,6 +34,7 @@ dsh plugin add dsh-chat-history-sync
 - token 只存本机，DPAPI 加密
 - 不采集手机号/邮箱；账号只用 userId / token 去重
 - 安全说明：[SECURITY.md](SECURITY.md)
+- 导出/会话位置的旧文件会保留，不自动删除；需要清理时请手动处理
 - 无遥测、无统计上报
 
 ## 范围
