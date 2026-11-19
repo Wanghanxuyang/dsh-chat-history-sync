@@ -52,6 +52,7 @@ if (!indexText.includes('缺少 token 或数据文件')) fail('unready account g
 if (!indexText.includes('/^PROGRESS\\t/')) fail('old sync log title scrub missing');
 if (!indexText.includes('cleanupProfile')) fail('login error cleanup missing');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
+if (!clientText.includes('重新登录')) fail('relogin action missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes("return '06-misc'")) fail('neutral category fallback missing');
 for (const f of ['catalog.cjs', 'export.cjs']) if (!fs.readFileSync(path.join(root, 'lib', 'engine', f), 'utf8').includes('if (!fs.existsSync(rawDir)) process.exit(0)')) fail(f + ' missing empty workspace guard');
 for (const f of ['catalog.cjs', 'export.cjs']) if (!fs.readFileSync(path.join(root, 'lib', 'engine', f), 'utf8').includes('skip corrupt dataset')) fail(f + ' missing corrupt dataset guard');
