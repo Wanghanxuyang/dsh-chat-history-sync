@@ -124,11 +124,13 @@ window.__ModuleLoader__.load({
       const running = busy || meta.running;
       const loginWaits = !!meta.loginWaits;
       const authFailed = !!meta.authFailed;
+      const installReady = !running && !meta.empty && !meta.noEnabled && !!meta.pending && !meta.deferred;
       const blocked = running || meta.empty || meta.noEnabled || loginWaits || authFailed;
       const run = async () => {
         if (blocked) return;
         setBusy(true);
         setFailed(false);
+        const field = installReady ? 'installNow' : 'runNow';
         let ok = false;
         try {
           const res = await clientCtx.remote.settings.describe();
@@ -136,13 +138,13 @@ window.__ModuleLoader__.load({
           const list = (doc && doc.namespaces) || [];
           const ns = list.find((n) => n.ns === NS) || list.find((n) => String(n.ns).endsWith(':' + NS) || String(n.ns).endsWith('/' + NS));
           if (!ns) return;
-          let r = await clientCtx.remote.settings.mutate(ns.ns, [{ op: 'set', path: ['runNow'], value: true }], ns.revision || 0);
+          let r = await clientCtx.remote.settings.mutate(ns.ns, [{ op: 'set', path: [field], value: true }], ns.revision || 0);
           if (!r || !r.ok) {
             const freshRes = await clientCtx.remote.settings.describe();
             const freshDoc = freshRes && freshRes.ok ? freshRes.value : null;
             const freshList = (freshDoc && freshDoc.namespaces) || [];
             const freshNs = freshList.find((n) => n.ns === NS) || freshList.find((n) => String(n.ns).endsWith(':' + NS) || String(n.ns).endsWith('/' + NS));
-            if (freshNs) r = await clientCtx.remote.settings.mutate(freshNs.ns, [{ op: 'set', path: ['runNow'], value: true }], freshNs.revision || 0);
+            if (freshNs) r = await clientCtx.remote.settings.mutate(freshNs.ns, [{ op: 'set', path: [field], value: true }], freshNs.revision || 0);
           }
           ok = !!(r && r.ok);
         } catch (e) {} finally {
@@ -156,15 +158,15 @@ window.__ModuleLoader__.load({
       return h('button', {
         type: 'button',
         className: 'msx-footer-action',
-        title: failed ? '同步未触发，点击重试' : (meta.empty ? '请先在设置中登录账号' : (meta.noEnabled ? '请先在设置中启用账号' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步，可在设置页查看进度' : '立即同步聊天历史'))))),
-        'aria-label': failed ? '同步未触发，点击重试' : (meta.empty ? '未登录，请先在设置中登录账号' : (meta.noEnabled ? '未启用账号，请先在设置中启用' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步聊天历史' : '立即同步聊天历史'))))),
+        title: failed ? '未触发，点击重试' : (installReady ? '新会话待安装，点击立即安装并重启 DSH' : (meta.empty ? '请先在设置中登录账号' : (meta.noEnabled ? '请先在设置中启用账号' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步，可在设置页查看进度' : '立即同步聊天历史')))))),
+        'aria-label': failed ? '未触发，点击重试' : (installReady ? '新会话待安装，点击立即安装' : (meta.empty ? '未登录，请先在设置中登录账号' : (meta.noEnabled ? '未启用账号，请先在设置中启用' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步聊天历史' : '立即同步聊天历史')))))),
         'aria-busy': running || undefined,
         disabled: blocked,
         onClick: run,
         onMouseEnter: () => setHover(true),
         onMouseLeave: () => setHover(false),
         style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: hover && !running ? 'var(--dsw-alias-bg-layer-2)' : 'transparent', color: 'var(--dsw-alias-label-secondary)', font: 'inherit', fontSize: 13, cursor: 'pointer' },
-      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, running ? '…' : (failed ? '!' : '↻'), (meta.pending || meta.deferred) && !running ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning, #f5a623)' } }) : null), wide ? h('span', null, failed ? '同步未触发' : (meta.empty ? '未登录' : (meta.noEnabled ? '先启用' : (authFailed ? '需重新登录' : (loginWaits ? '等待登录' : (running ? '正在同步' : '同步聊天历史')))))) : null);
+      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, running ? '…' : (failed ? '!' : (installReady ? '↓' : '↻')), (meta.pending || meta.deferred) && !running ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning, #f5a623)' } }) : null), wide ? h('span', null, failed ? '未触发' : (installReady ? '立即安装' : (meta.empty ? '未登录' : (meta.noEnabled ? '先启用' : (authFailed ? '需重新登录' : (loginWaits ? '等待登录' : (running ? '正在同步' : '同步聊天历史'))))))) : null);
     }
 
     class SlotBoundary extends React.Component {
