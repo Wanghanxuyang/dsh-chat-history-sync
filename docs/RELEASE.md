@@ -1,6 +1,7 @@
 # Release checklist
 
-1. Run `npm test`, `npm run test:e2e`, `npm run test:sandbox`, and `npm run test:package` in `tools/plugin-memory-sync`.
+1. Run `npm test`, `npm run test:e2e`, `npm run test:sandbox`, `npm run test:package`, and `npm run test:runtime` in `tools/plugin-memory-sync`.
+   - `test:runtime` accepts an `apply entered version=<version>` marker from HMR or a full restart; it also checks deployed file completeness.
 2. Run `npm run check:sessions` on a real profile when possible.
 3. Verify `npm pack --dry-run` includes:
    - `lib/browser/login-save.mjs`
