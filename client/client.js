@@ -386,6 +386,7 @@ window.__ModuleLoader__.load({
       const loginPending = /正在打开登录页|请在弹出的浏览器/.test(String(loginStatus || ''));
       const statusText = String((value && value.statusText) || '');
       const progressMatch = statusText.match(/正在同步\s+(\d+)\/(\d+)/);
+      const progressPct = progressMatch && Number(progressMatch[2]) > 0 ? Math.round((Number(progressMatch[1]) / Number(progressMatch[2])) * 100) : 0;
       const progressText = progressMatch ? '正在同步 ' + progressMatch[1] + '/' + progressMatch[2] : '正在同步…';
       const actionVisible = autoInstall && /安装完成|安装失败|安装未完成|安装调度失败|已安排安装|已取消本次安装|有会话待安装/.test(statusText);
       const installFailed = autoInstall && /安装失败|安装未完成|安装调度失败/.test(statusText);
@@ -426,7 +427,7 @@ window.__ModuleLoader__.load({
               h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running || !hasAccounts || !value || loginPending || needRelogin, 'aria-label': !value ? '加载中' : (loginPending ? '等待浏览器登录' : (!hasAccounts ? (hasAnyAccounts ? '请先启用账号' : '登录 DeepSeek 账号') : (running ? '同步进行中' : (needRelogin ? '请先重新登录' : '立即同步聊天历史')))), onClick: !hasAccounts && !hasAnyAccounts ? login : trigger }, !value ? '加载中' : (loginPending ? '登录中…' : (!hasAccounts ? (hasAnyAccounts ? '先启用' : '登录账号') : (running ? '同步中…' : (needRelogin ? '先重新登录' : '立即同步'))))),
             ),
           ),
-          running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuetext': progressMatch ? '同步 ' + progressMatch[1] + '/' + progressMatch[2] : '同步进行中' }, h('i', null)) : null,
+          running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-valuenow': progressMatch ? progressPct : undefined, 'aria-valuetext': progressMatch ? '同步 ' + progressMatch[1] + '/' + progressMatch[2] : '同步进行中' }, h('i', null)) : null,
           (value && (value.lastSyncAt || value.reportText || (installDeferred && autoInstall))) ? h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, borderTop: '1px solid var(--dsw-alias-border-l1)', padding: '9px 16px', flexWrap: 'wrap' } },
             h('span', { className: 'msx-sub', 'aria-label': installDeferred ? '有会话待安装' : (value.lastSyncAt ? '上次同步 ' + fmtTime(value.lastSyncAt) : '还没有同步记录'), title: value && value.lastSyncResult ? String(value.lastSyncResult).slice(0, 300) : undefined, style: { marginTop: 0, color: installDeferred ? 'var(--dsw-alias-state-warning, #b86e00)' : undefined } }, installDeferred ? '有会话待安装' : (value.lastSyncAt ? '上次同步 ' + fmtTime(value.lastSyncAt) : '还没有同步记录')),
             h('div', { style: { display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 } },
