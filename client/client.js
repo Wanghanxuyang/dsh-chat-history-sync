@@ -178,6 +178,7 @@ window.__ModuleLoader__.load({
       const [value, setValue] = React.useState(null);
       const [revision, setRevision] = React.useState(0);
       const [msg, setMsg] = React.useState('');
+      const [notice, setNotice] = React.useState('');
       const [busy, setBusy] = React.useState(false);
       const [startedAt, setStartedAt] = React.useState(0);
       const [accOpen, setAccOpen] = React.useState(true);
@@ -293,8 +294,8 @@ window.__ModuleLoader__.load({
       }, []);
 
       const flash = (text, ms = 8000) => {
-        setMsg(text);
-        setTimeout(() => setMsg((cur) => (cur === text ? '' : cur)), ms);
+        setNotice(text);
+        setTimeout(() => setNotice((cur) => (cur === text ? '' : cur)), ms);
       };
       const write = async (field, v, clearAccounts = false) => {
         setBusy(true);
@@ -396,7 +397,7 @@ window.__ModuleLoader__.load({
       const progressText = progressMatch ? '正在同步 ' + progressMatch[1] + '/' + progressMatch[2] : '正在同步…';
       const actionVisible = autoInstall && /^(安装完成|安装失败|安装未完成|安装调度失败|已安排安装|已取消本次安装|有会话待安装)/.test(statusText);
       const installFailed = autoInstall && /^(安装失败|安装未完成|安装调度失败)/.test(statusText);
-      const statusLine = value ? (msg || (running ? progressText : (value.status === 'error' ? String(value.statusText || '同步失败') : (actionVisible ? statusText : (value.lastSyncAt ? '已同步' : '尚未同步'))))) : (msg || '读取中…');
+      const statusLine = value ? (notice || msg || (running ? progressText : (value.status === 'error' ? String(value.statusText || '同步失败') : (actionVisible ? statusText : (value.lastSyncAt ? '已同步' : '尚未同步'))))) : (notice || msg || '读取中…');
       const pendingText = /^同步完成：检测到新会话/.test(String((value && value.statusText) || ''));
       const pendingInstall = (installPending || pendingText) && autoInstall;
       const needInstall = !installDeferred && pendingInstall;
