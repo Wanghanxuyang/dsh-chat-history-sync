@@ -393,7 +393,7 @@ window.__ModuleLoader__.load({
       const actionVisible = autoInstall && /^(安装完成|安装失败|安装未完成|安装调度失败|已安排安装|已取消本次安装|有会话待安装)/.test(statusText);
       const installFailed = autoInstall && /^(安装失败|安装未完成|安装调度失败)/.test(statusText);
       const statusLine = value ? (msg || (running ? progressText : (value.status === 'error' ? String(value.statusText || '同步失败') : (actionVisible ? statusText : (value.lastSyncAt ? '已同步' : '尚未同步'))))) : (msg || '读取中…');
-      const pendingText = /检测到新会话/.test(String((value && value.statusText) || ''));
+      const pendingText = /^同步完成：检测到新会话/.test(String((value && value.statusText) || ''));
       const pendingInstall = (installPending || pendingText) && autoInstall;
       const needInstall = !installDeferred && pendingInstall;
       const shownStatus = loginPending ? '等待登录…' : ((!running && pendingText) ? '同步完成 · 待确认安装' : statusLine);
