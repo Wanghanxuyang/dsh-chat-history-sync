@@ -100,7 +100,7 @@ window.__ModuleLoader__.load({
       const [busy, setBusy] = React.useState(false);
       const [failed, setFailed] = React.useState(false);
       const [hover, setHover] = React.useState(false);
-      const [meta, setMeta] = React.useState({ running: false, pending: false, deferred: false, empty: false, noEnabled: false, loginWaits: false, authFailed: false, installScheduled: false, succeeded: false, importPhase: 'idle' });
+      const [meta, setMeta] = React.useState({ running: false, pending: false, deferred: false, empty: false, noEnabled: false, loginWaits: false, authFailed: false, installScheduled: false, succeeded: false, importPhase: 'idle', statusText: '' });
       const [installing, setInstalling] = React.useState(false);
       React.useEffect(() => {
         let alive = true;
@@ -114,7 +114,7 @@ window.__ModuleLoader__.load({
             if (alive && ns) {
               let accounts = [];
               try { accounts = JSON.parse((ns.value && ns.value.accounts) || '[]'); } catch (e) { accounts = []; }
-              setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending) && ns.value.autoInstall !== false, deferred: !!(ns.value && ns.value.installDeferred) && ns.value.autoInstall !== false, empty: !accounts.length, noEnabled: accounts.length > 0 && !accounts.some((a) => a && a.enabled !== false), loginWaits: /正在打开登录页|请在弹出的浏览器/.test(String((ns.value && ns.value.loginStatus) || '')), authFailed: !!(ns.value && ns.value.status === 'error' && /^(同步失败|自动同步失败).*(登录失效|风控|401|403)/.test(String(ns.value.statusText || ''))), installScheduled: !!(ns.value && ns.value.installScheduled), succeeded: !!(ns.value && ns.value.installSucceeded), importPhase: String((ns.value && ns.value.importPhase) || 'idle') });
+              setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending) && ns.value.autoInstall !== false, deferred: !!(ns.value && ns.value.installDeferred) && ns.value.autoInstall !== false, empty: !accounts.length, noEnabled: accounts.length > 0 && !accounts.some((a) => a && a.enabled !== false), loginWaits: /正在打开登录页|请在弹出的浏览器/.test(String((ns.value && ns.value.loginStatus) || '')), authFailed: !!(ns.value && ns.value.status === 'error' && /^(同步失败|自动同步失败).*(登录失效|风控|401|403)/.test(String(ns.value.statusText || ''))), installScheduled: !!(ns.value && ns.value.installScheduled), succeeded: !!(ns.value && ns.value.installSucceeded), importPhase: String((ns.value && ns.value.importPhase) || 'idle'), statusText: String((ns.value && ns.value.statusText) || '') });
             }
           } catch (e) {}
         };
@@ -125,9 +125,13 @@ window.__ModuleLoader__.load({
       const running = busy || meta.running;
       const loginWaits = !!meta.loginWaits;
       const authFailed = !!meta.authFailed;
-      const phase = meta.importPhase && meta.importPhase !== 'idle'
-        ? meta.importPhase
-        : (meta.succeeded ? 'succeeded' : (meta.installScheduled ? 'scheduled' : (meta.pending ? 'pending' : (meta.deferred ? 'deferred' : 'idle'))));
+      const legacyPhase = meta.succeeded ? 'succeeded'
+        : (meta.installScheduled ? 'scheduled'
+          : (/^正在生成导入报告/.test(meta.statusText) ? 'reporting'
+            : (/^导入完成，但报告未生成/.test(meta.statusText) ? 'report_failed'
+              : (/^导入(失败|未完成|调度失败)/.test(meta.statusText) ? 'failed'
+                : (meta.pending ? 'pending' : (meta.deferred ? 'deferred' : 'idle'))))));
+      const phase = meta.importPhase && meta.importPhase !== 'idle' ? meta.importPhase : legacyPhase;
       const restarting = phase === 'scheduled';
       const succeeded = phase === 'succeeded';
       const reporting = phase === 'reporting';
