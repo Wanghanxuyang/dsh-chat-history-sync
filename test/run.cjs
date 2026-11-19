@@ -68,6 +68,7 @@ if (!indexText.includes('!/^ - /.test(line)')) fail('old account summary log scr
 if (!clientText.includes('上次安装失败')) fail('install failure card copy missing');
 if (!indexText.includes('patch.accountHealth = JSON.stringify(health)')) fail('account health not cleared on success');
 if (!indexText.includes('^(.+?):\\s*总数')) fail('account name with spaces not supported');
+if (!clientText.includes('installDeferred && autoInstall')) fail('install reminder off not honored');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('cleanTitle')) fail('catalog link label sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('\\x00-\\x1f')) fail('catalog filename control-char sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('encodeURIComponent(fname)')) fail('catalog link encoding missing');
