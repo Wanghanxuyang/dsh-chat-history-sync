@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.65
+
+- 同步引擎、目录/导出、登录 runner 统一用 `node.exe` 启动，不再依赖 Electron `ELECTRON_RUN_AS_NODE`
+- 找不到 node.exe 时才回退 `process.execPath`
+
 ## 0.12.64
 
 - 新增 `test:runtime`：对比源码/已部署版本，并检测 DSH 主进程是否早于部署时间
