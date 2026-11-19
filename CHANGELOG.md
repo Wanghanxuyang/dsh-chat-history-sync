@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.61
+
+- DPAPI 明文 token 改为通过 stdin 传入 PowerShell，不再出现在进程命令行
+- 新增 DPAPI 往返测试；SECURITY 说明 `run-config.json` 的临时 token 生命周期
+
 ## 0.12.60
 
 - 登录失败/取消时也立即删除 `login-result.json`，不再把页面元数据留到下次启动
