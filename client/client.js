@@ -184,6 +184,58 @@ window.__ModuleLoader__.load({
     function CardSafe() { return h(SlotBoundary, null, h(Card)); }
     function FooterSafe(props) { return h(SlotBoundary, null, h(FooterEntry, props)); }
 
+    function InstallSuccessToast() {
+      const [visible, setVisible] = React.useState(false);
+      const lastStatus = React.useRef('');
+      const timer = React.useRef(null);
+      React.useEffect(() => {
+        let alive = true;
+        const tick = async () => {
+          try {
+            const res = await clientCtx.remote.settings.describe();
+            const doc = res && res.ok ? res.value : null;
+            const list = (doc && doc.namespaces) || [];
+            const ns = list.find((n) => n.ns === NS) || list.find((n) => String(n.ns).endsWith(':' + NS) || String(n.ns).endsWith('/' + NS));
+            if (!alive || !ns) return;
+            const statusText = String((ns.value && ns.value.statusText) || '');
+            if (statusText !== lastStatus.current) {
+              lastStatus.current = statusText;
+              if (statusText === '安装完成') {
+                setVisible(true);
+                if (timer.current) clearTimeout(timer.current);
+                timer.current = setTimeout(() => setVisible(false), 12000);
+              }
+            }
+          } catch (e) {}
+        };
+        tick();
+        const id = setInterval(tick, 1500);
+        return () => { alive = false; clearInterval(id); if (timer.current) clearTimeout(timer.current); };
+      }, []);
+      if (!visible) return null;
+      return h('div', {
+        role: 'status',
+        'aria-live': 'polite',
+        style: {
+          position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 1000,
+          display: 'flex', alignItems: 'center', gap: 12, maxWidth: 'min(92vw, 480px)',
+          padding: '11px 14px 11px 13px', borderRadius: 14,
+          background: 'var(--dsw-alias-bg-layer-2, #1f2329)',
+          border: '1px solid var(--dsw-alias-state-success, #30a46c)',
+          boxShadow: '0 12px 32px rgba(0,0,0,.24)',
+          color: 'var(--dsw-alias-label-primary)', fontSize: 13,
+        },
+      },
+        h('i', { 'aria-hidden': 'true', style: { width: 10, height: 10, borderRadius: '50%', flex: '0 0 auto', background: 'var(--dsw-alias-state-success, #30a46c)', boxShadow: '0 0 0 4px rgba(48,164,108,.18)' } }),
+        h('div', { style: { minWidth: 0 } },
+          h('div', { style: { fontWeight: 600 } }, '安装成功'),
+          h('div', { style: { opacity: .72, fontSize: 12, marginTop: 2 } }, '新会话已加入 DSH'),
+        ),
+        h('button', { type: 'button', className: 'msx-linkbtn', style: { marginLeft: 4, flexShrink: 0 }, onClick: () => setVisible(false) }, '知道了'),
+      );
+    }
+
+
     function Card() {
       const [value, setValue] = React.useState(null);
       const [revision, setRevision] = React.useState(0);
@@ -622,6 +674,12 @@ window.__ModuleLoader__.load({
           order: 27,
           label: () => '同步聊天历史',
         }, FooterSafe));
+        ctx.slots.inject('shell.overlay', () => ctx.slots.register({
+          name: 'shell.overlay',
+          id: 'chat-history-sync-install-success',
+          order: 100,
+          label: '安装成功提醒',
+        }, InstallSuccessToast));
       },
     };
   },
