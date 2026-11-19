@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.78
+
+- 同步进度条补齐 `aria-valuemin/max/now`，数值按 x/y 计算
+
 ## 0.11.77
 
 - README 说明导出/会话位置旧文件保留、不自动删除
