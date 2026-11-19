@@ -82,6 +82,7 @@ if (!indexText.includes('lastSyncAt: 0,')) fail('new account should clear last s
 if (!indexText.includes('同步进行中，完成后再登录')) fail('login during sync not guarded');
 if (!clientText.includes('disabled: busy || running || loginPending')) fail('login button not disabled during sync');
 if (!clientText.includes("disabled: busy || running, 'aria-label': installFailed")) fail('install button not disabled during sync');
+if ((clientText.match(/loginCancel/g) || []).length > 1) fail('duplicate cancel-login control');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('cleanTitle')) fail('catalog link label sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('\\x00-\\x1f')) fail('catalog filename control-char sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('encodeURIComponent(fname)')) fail('catalog link encoding missing');
