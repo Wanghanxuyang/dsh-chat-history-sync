@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.59
+
+- 登录结果不再收集页面控制台文本
+- 失败请求 URL 去掉查询串，页面地址只保留 origin+pathname
+
 ## 0.12.58
 
 - `settings.log` 不再记录 `statusText` 原文，只记录长度，避免账号简称进入日志
