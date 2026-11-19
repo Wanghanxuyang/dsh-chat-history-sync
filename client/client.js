@@ -100,7 +100,7 @@ window.__ModuleLoader__.load({
       const [busy, setBusy] = React.useState(false);
       const [failed, setFailed] = React.useState(false);
       const [hover, setHover] = React.useState(false);
-      const [meta, setMeta] = React.useState({ running: false, pending: false, deferred: false, empty: false, noEnabled: false, loginWaits: false, authFailed: false, installScheduled: false, succeeded: false });
+      const [meta, setMeta] = React.useState({ running: false, pending: false, deferred: false, empty: false, noEnabled: false, loginWaits: false, authFailed: false, installScheduled: false, succeeded: false, importPhase: 'idle' });
       const [installing, setInstalling] = React.useState(false);
       React.useEffect(() => {
         let alive = true;
@@ -114,7 +114,7 @@ window.__ModuleLoader__.load({
             if (alive && ns) {
               let accounts = [];
               try { accounts = JSON.parse((ns.value && ns.value.accounts) || '[]'); } catch (e) { accounts = []; }
-              setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending) && ns.value.autoInstall !== false, deferred: !!(ns.value && ns.value.installDeferred) && ns.value.autoInstall !== false, empty: !accounts.length, noEnabled: accounts.length > 0 && !accounts.some((a) => a && a.enabled !== false), loginWaits: /正在打开登录页|请在弹出的浏览器/.test(String((ns.value && ns.value.loginStatus) || '')), authFailed: !!(ns.value && ns.value.status === 'error' && /^(同步失败|自动同步失败).*(登录失效|风控|401|403)/.test(String(ns.value.statusText || ''))), installScheduled: !!(ns.value && ns.value.installScheduled), succeeded: !!(ns.value && ns.value.installSucceeded) });
+              setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending) && ns.value.autoInstall !== false, deferred: !!(ns.value && ns.value.installDeferred) && ns.value.autoInstall !== false, empty: !accounts.length, noEnabled: accounts.length > 0 && !accounts.some((a) => a && a.enabled !== false), loginWaits: /正在打开登录页|请在弹出的浏览器/.test(String((ns.value && ns.value.loginStatus) || '')), authFailed: !!(ns.value && ns.value.status === 'error' && /^(同步失败|自动同步失败).*(登录失效|风控|401|403)/.test(String(ns.value.statusText || ''))), installScheduled: !!(ns.value && ns.value.installScheduled), succeeded: !!(ns.value && ns.value.installSucceeded), importPhase: String((ns.value && ns.value.importPhase) || 'idle') });
             }
           } catch (e) {}
         };
@@ -125,13 +125,17 @@ window.__ModuleLoader__.load({
       const running = busy || meta.running;
       const loginWaits = !!meta.loginWaits;
       const authFailed = !!meta.authFailed;
-      const restarting = !!meta.installScheduled;
-      const succeeded = !!meta.succeeded;
-      const installReady = !running && !restarting && !succeeded && !meta.empty && !meta.noEnabled && !!meta.pending && !meta.deferred;
-      const blocked = running || restarting || succeeded || meta.empty || meta.noEnabled || loginWaits || authFailed;
+      const phase = meta.importPhase && meta.importPhase !== 'idle'
+        ? meta.importPhase
+        : (meta.succeeded ? 'succeeded' : (meta.installScheduled ? 'scheduled' : (meta.pending ? 'pending' : (meta.deferred ? 'deferred' : 'idle'))));
+      const restarting = phase === 'scheduled';
+      const succeeded = phase === 'succeeded';
+      const reporting = phase === 'reporting';
+      const installReady = !running && !restarting && !succeeded && !reporting && !meta.empty && !meta.noEnabled && phase === 'pending';
+      const blocked = running || restarting || succeeded || reporting || meta.empty || meta.noEnabled || loginWaits || authFailed;
       React.useEffect(() => {
-        if (!meta.installScheduled && !meta.pending) setInstalling(false);
-      }, [meta.installScheduled, meta.pending]);
+        if (!meta.installScheduled && !meta.pending && meta.importPhase !== 'pending') setInstalling(false);
+      }, [meta.installScheduled, meta.pending, meta.importPhase]);
       const run = async () => {
         if (blocked) return;
         setBusy(true);
@@ -163,18 +167,24 @@ window.__ModuleLoader__.load({
           setTimeout(() => setBusy(false), 5000);
         }
       };
+      const icon = succeeded
+        ? h('i', { style: { display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: 'var(--dsw-alias-state-success, #30a46c)', boxShadow: '0 0 0 4px rgba(48,164,108,.18)' } })
+        : (restarting ? '⏻' : (reporting ? '…' : (installing || running ? '…' : (failed ? '!' : (installReady ? '↓' : '↻')))));
+      const dot = (meta.pending || meta.deferred) && !running && !restarting && !succeeded
+        ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning, #f5a623)' } })
+        : null;
       return h('button', {
         type: 'button',
         className: 'msx-footer-action',
-        title: succeeded ? '导入成功，新对话已加入 DSH' : (restarting ? '导入已安排，即将重启 DSH' : (installing ? '正在安排导入…' : (failed ? '未触发，点击重试' : (installReady ? '新对话待导入，点击立即导入并重启 DSH' : (meta.empty ? '请先在设置中登录账号' : (meta.noEnabled ? '请先在设置中启用账号' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步，可在设置页查看进度' : '立即同步聊天历史'))))))))),
-        'aria-label': succeeded ? '导入成功，新对话已加入 DSH' : (restarting ? '导入已安排，即将重启 DSH' : (installing ? '正在安排导入' : (failed ? '未触发，点击重试' : (installReady ? '新对话待导入，点击立即导入' : (meta.empty ? '未登录，请先在设置中登录账号' : (meta.noEnabled ? '未启用账号，请先在设置中启用' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步聊天历史' : '立即同步聊天历史'))))))))),
-        'aria-busy': restarting || undefined,
+        title: succeeded ? '导入成功，新对话已加入 DSH' : (restarting ? '导入已安排，即将重启 DSH' : (reporting ? '正在生成导入报告…' : (installing ? '正在安排导入…' : (failed ? '未触发，点击重试' : (installReady ? '新对话待导入，点击立即导入并重启 DSH' : (meta.empty ? '请先在设置中登录账号' : (meta.noEnabled ? '请先在设置中启用账号' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步，可在设置页查看进度' : '立即同步聊天历史')))))))))),
+        'aria-label': succeeded ? '导入成功，新对话已加入 DSH' : (restarting ? '导入已安排，即将重启 DSH' : (reporting ? '正在生成导入报告' : (installing ? '正在安排导入' : (failed ? '未触发，点击重试' : (installReady ? '新对话待导入，点击立即导入' : (meta.empty ? '未登录，请先在设置中登录账号' : (meta.noEnabled ? '未启用账号，请先在设置中启用' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步聊天历史' : '立即同步聊天历史')))))))))),
+        'aria-busy': restarting || reporting || undefined,
         disabled: blocked,
         onClick: run,
         onMouseEnter: () => setHover(true),
         onMouseLeave: () => setHover(false),
-        style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: hover && !running && !restarting && !succeeded ? 'var(--dsw-alias-bg-layer-2)' : 'transparent', color: succeeded ? 'var(--dsw-alias-state-success, #30a46c)' : (restarting ? 'var(--dsw-alias-state-warning, #b86e00)' : 'var(--dsw-alias-label-secondary)'), font: 'inherit', fontSize: 13, fontWeight: succeeded ? 600 : 'normal', cursor: restarting || succeeded ? 'default' : 'pointer' },
-      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, succeeded ? h('i', { style: { display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: 'var(--dsw-alias-state-success, #30a46c)', boxShadow: '0 0 0 4px rgba(48,164,108,.18)' } }) : (restarting ? '⏻' : (installing || running ? '…' : (failed ? '!' : (installReady ? '↓' : '↻')))), (meta.pending || meta.deferred) && !running && !restarting && !succeeded ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning, #f5a623)' } }) : null), wide ? h('span', null, succeeded ? '导入成功' : (restarting ? '即将重启' : (installing ? '正在安排导入' : (failed ? '未触发' : (installReady ? '立即导入' : (meta.empty ? '未登录' : (meta.noEnabled ? '先启用' : (authFailed ? '需重新登录' : (loginWaits ? '等待登录' : (running ? '正在同步' : '同步聊天历史')))))))))) : null);
+        style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: hover && !running && !restarting && !succeeded && !reporting ? 'var(--dsw-alias-bg-layer-2)' : 'transparent', color: succeeded ? 'var(--dsw-alias-state-success, #30a46c)' : (restarting ? 'var(--dsw-alias-state-warning, #b86e00)' : 'var(--dsw-alias-label-secondary)'), font: 'inherit', fontSize: 13, fontWeight: succeeded ? 600 : 'normal', cursor: restarting || succeeded || reporting ? 'default' : 'pointer' },
+      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, icon, dot), wide ? h('span', null, succeeded ? '导入成功' : (restarting ? '即将重启' : (reporting ? '生成报告中' : (installing ? '正在安排导入' : (failed ? '未触发' : (installReady ? '立即导入' : (meta.empty ? '未登录' : (meta.noEnabled ? '先启用' : (authFailed ? '需重新登录' : (loginWaits ? '等待登录' : (running ? '正在同步' : '同步聊天历史'))))))))))) : null);
     }
 
     class SlotBoundary extends React.Component {
@@ -276,7 +286,7 @@ window.__ModuleLoader__.load({
               setRevision(ns.revision);
               setValue((cur) => {
                 const next = { ...(cur || {}) };
-                for (const k of ['accounts', 'attachmentMode', 'autoSync', 'autoInstall', 'installPending', 'installNow', 'installDeferred', 'installDeferredByUser', 'installScheduled', 'duplicateCount', 'notifyEnabled', 'digestEnabled', 'lastSyncAt', 'lastSyncResult', 'accountHealth', 'attachmentStats', 'reportTargetSessionId', 'loginStatus', 'loginRequest', 'status', 'statusText', 'reportText']) if (v[k] !== undefined) next[k] = v[k];
+                for (const k of ['accounts', 'attachmentMode', 'autoSync', 'autoInstall', 'installPending', 'installNow', 'installDeferred', 'installDeferredByUser', 'installScheduled', 'installSucceeded', 'importPhase', 'duplicateCount', 'notifyEnabled', 'digestEnabled', 'lastSyncAt', 'lastSyncResult', 'accountHealth', 'attachmentStats', 'reportTargetSessionId', 'loginStatus', 'loginRequest', 'status', 'statusText', 'reportText']) if (v[k] !== undefined) next[k] = v[k];
                 return next;
               });
             }
@@ -417,13 +427,14 @@ window.__ModuleLoader__.load({
       const progressPct = progressMatch && Number(progressMatch[2]) > 0 ? Math.round((Number(progressMatch[1]) / Number(progressMatch[2])) * 100) : 0;
       const progressText = progressMatch ? '正在同步 ' + progressMatch[1] + '/' + progressMatch[2] : '正在同步…';
       const actionVisible = autoInstall && /^(导入完成|导入失败|导入未完成|导入调度失败|已安排导入|已取消本次导入|有会话待导入)/.test(statusText);
-      const installFailed = autoInstall && /^(导入失败|导入未完成|导入调度失败)/.test(statusText);
-      const statusLine = value ? (notice || msg || (running ? progressText : (value.status === 'error' ? String(value.statusText || '同步失败') : (actionVisible ? statusText : (value.lastSyncAt ? '已同步' : '尚未同步'))))) : (notice || msg || '读取中…');
+      const importPhase = String((value && value.importPhase) || '');
+      const installFailed = autoInstall && (importPhase === 'failed' || /^(导入失败|导入未完成|导入调度失败)/.test(statusText));      const statusLine = value ? (notice || msg || (running ? progressText : (value.status === 'error' ? String(value.statusText || '同步失败') : (actionVisible ? statusText : (value.lastSyncAt ? '已同步' : '尚未同步'))))) : (notice || msg || '读取中…');
       const pendingText = /^同步完成：检测到新对话/.test(String((value && value.statusText) || ''));
       const pendingInstall = (installPending || pendingText) && autoInstall;
       const needInstall = !installDeferred && pendingInstall;
-      const restarting = !!(value && value.installScheduled);
-      const shownStatus = loginPending ? '等待登录…' : (restarting ? '导入已安排 · 即将重启' : ((!running && pendingText) ? '同步完成 · 待确认导入' : statusLine));
+      const restarting = importPhase === 'scheduled' || !!(value && value.installScheduled);
+      const reporting = importPhase === 'reporting';
+      const shownStatus = loginPending ? '等待登录…' : (restarting ? '导入已安排 · 即将重启' : (reporting ? '正在生成导入报告…' : ((!running && pendingText) ? '同步完成 · 待确认导入' : statusLine)));
       const failed = !!(value && (value.status === 'error' || /^同步失败|^自动同步失败|部分账号失败|^导入失败|^导入未完成|^导入调度失败/.test(String(shownStatus || ''))));
       const needRelogin = failed && /^(同步失败|自动同步失败).*(登录失效|风控|401|403)/.test(statusText);
       const fmtTime = (ts) => {
@@ -447,13 +458,13 @@ window.__ModuleLoader__.load({
                 h('span', { role: 'status', 'aria-live': running ? 'off' : 'polite', style: { fontSize: 14, fontWeight: 600, color: failed ? 'var(--dsw-alias-state-error)' : 'var(--dsw-alias-label-primary)' } }, shownStatus),
                 !running ? h('i', { 'aria-hidden': 'true', style: { display: 'inline-block', flex: '0 0 auto', width: 6, height: 6, borderRadius: '50%', background: failed ? 'var(--dsw-alias-state-error, #e5484d)' : (pendingInstall ? 'var(--dsw-alias-state-warning, #f5a623)' : (hasAccounts ? 'var(--dsw-alias-state-success, #30a46c)' : 'var(--dsw-alias-label-tertiary, #8b8f98)')) } }) : null,
               ),
-              h('div', { className: 'msx-sub' }, !value ? '正在读取同步设置…' : (loginPending ? '请在弹出的浏览器完成登录。' : (restarting ? '约 20 秒后自动重启 DSH；无需再点。' : (running ? '后台同步中，可离开此页。' : (!hasAccounts ? (hasAnyAccounts ? '先启用账号，再同步。' : '先登录账号，再同步。') : (installFailed ? '可稍后重试导入。' : (needRelogin ? '登录失效，请点「重新登录」。' : (failed ? '可重试，或查看报告。' : '同步时可离开此页。')))))))),
+              h('div', { className: 'msx-sub' }, !value ? '正在读取同步设置…' : (loginPending ? '请在弹出的浏览器完成登录。' : (restarting ? '约 20 秒后自动重启 DSH；无需再点。' : (reporting ? '导入已写入，正在生成可见报告。' : (running ? '后台同步中，可离开此页。' : (!hasAccounts ? (hasAnyAccounts ? '先启用账号，再同步。' : '先登录账号，再同步。') : (installFailed ? '可稍后重试导入。' : (needRelogin ? '登录失效，请点「重新登录」。' : (failed ? '可重试，或查看报告。' : '同步时可离开此页。'))))))))),
             ),
             h('div', { style: { display: 'flex', gap: 8, flexShrink: 0 } },
               loginPending ? h('button', { className: 'msx-btn', disabled: busy, 'aria-label': '取消登录', onClick: () => void write('loginCancel', Date.now()) }, '取消登录') : null,
               running ? h('button', { className: 'msx-btn', disabled: busy, 'aria-label': '取消当前同步', onClick: () => void write('cancelSync', true) }, '取消') : null,
               needRelogin ? h('button', { className: 'msx-btn', disabled: busy || running || loginPending, 'aria-label': '重新登录 DeepSeek 账号', onClick: () => void write('loginRequest', Date.now()) }, '重新登录') : null,
-              h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running || restarting || !hasAccounts || !value || loginPending || needRelogin, 'aria-label': !value ? '加载中' : (restarting ? '导入已安排，即将重启 DSH' : (loginPending ? '等待浏览器登录' : (!hasAccounts ? (hasAnyAccounts ? '请先启用账号' : '登录 DeepSeek 账号') : (running ? '同步进行中' : (needRelogin ? '请先重新登录' : '立即同步聊天历史'))))), onClick: !hasAccounts && !hasAnyAccounts ? login : trigger }, !value ? '加载中' : (restarting ? '即将重启' : (loginPending ? '登录中…' : (!hasAccounts ? (hasAnyAccounts ? '先启用' : '登录账号') : (running ? '同步中…' : (needRelogin ? '先重新登录' : '立即同步')))))),
+              h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running || restarting || reporting || !hasAccounts || !value || loginPending || needRelogin, 'aria-label': !value ? '加载中' : (restarting ? '导入已安排，即将重启 DSH' : (reporting ? '正在生成导入报告' : (loginPending ? '等待浏览器登录' : (!hasAccounts ? (hasAnyAccounts ? '请先启用账号' : '登录 DeepSeek 账号') : (running ? '同步进行中' : (needRelogin ? '请先重新登录' : '立即同步聊天历史')))))), onClick: !hasAccounts && !hasAnyAccounts ? login : trigger }, !value ? '加载中' : (restarting ? '即将重启' : (reporting ? '生成报告中' : (loginPending ? '登录中…' : (!hasAccounts ? (hasAnyAccounts ? '先启用' : '登录账号') : (running ? '同步中…' : (needRelogin ? '先重新登录' : '立即同步'))))))),
             ),
           ),
           running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-valuenow': progressMatch ? progressPct : undefined, 'aria-valuetext': progressMatch ? '同步 ' + progressMatch[1] + '/' + progressMatch[2] : '同步进行中' }, h('i', null)) : null,
