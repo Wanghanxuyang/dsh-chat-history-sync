@@ -62,6 +62,7 @@ if (!indexText.includes('workspace: !!ws')) fail('diagnostics must not expose wo
 if (!indexText.includes('statusTextLength')) fail('diagnostics must not expose status text');
 if (!indexText.includes("createHash('sha256')")) fail('prefix marker must hash account names');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('cleanTitle')) fail('catalog link label sanitization missing');
+if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('\\x00-\\x1f')) fail('catalog filename control-char sanitization missing');
 if (clientText.includes('!hasAccounts && /正在打开')) fail('loginPending must not depend on empty accounts');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes("return '06-misc'")) fail('neutral category fallback missing');
 for (const f of ['catalog.cjs', 'export.cjs']) if (!fs.readFileSync(path.join(root, 'lib', 'engine', f), 'utf8').includes('if (!fs.existsSync(rawDir)) process.exit(0)')) fail(f + ' missing empty workspace guard');
