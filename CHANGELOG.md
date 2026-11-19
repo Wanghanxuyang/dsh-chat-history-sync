@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.49
+
+- 修复首次使用无账号时“登录账号”主按钮被 `!hasAccounts` 一起禁用、无法点击的问题
+- 首次使用测试覆盖空账号、默认展开、主/次登录入口
+
 ## 0.12.48
 
 - 启动时把旧配置的 pending/scheduled/reporting/failed 等状态补写为 `importPhase`
