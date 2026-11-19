@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.66
+
+- 同步引擎读取 `run-config.json` 时去掉 UTF-8 BOM，避免 `Unexpected token '﻿'`
+- 新增带 BOM 配置的引擎启动测试
+
 ## 0.12.65
 
 - 同步引擎、目录/导出、登录 runner 统一用 `node.exe` 启动，不再依赖 Electron `ELECTRON_RUN_AS_NODE`
