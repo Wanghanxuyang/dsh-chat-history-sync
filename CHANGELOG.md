@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.59
+
+- 调度安装前清理旧 `install-result.json`，避免读到上次结果
+
 ## 0.11.58
 
 - 每次发起登录前先删除旧的 `login-result.json`，避免读到上次残留结果
