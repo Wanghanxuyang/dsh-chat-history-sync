@@ -353,6 +353,8 @@ window.__ModuleLoader__.load({
           if (r && r.ok) {
             setRevision(r.value.revision);
             setValue(r.value.value || {});
+            setTimeout(() => setBusy(false), 3000);
+            return;
           } else {
             setMsg('登录触发失败，请重试');
           }
