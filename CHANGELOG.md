@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.48
+
+- 启动时把旧配置的 pending/scheduled/reporting/failed 等状态补写为 `importPhase`
+- 客户端首屏对旧配置做同样的回退推导，避免旧 pending/failed 入口消失
+
 ## 0.12.47
 
 - 新增 `report_failed` 导入状态：报告创建失败不再掉回 idle
