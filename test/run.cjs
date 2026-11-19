@@ -77,7 +77,7 @@ if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').i
 if (!clientText.includes('aria-valuenow')) fail('progressbar value missing');
 if (!clientText.includes('setTimeout(() => setBusy(false), 3000)')) fail('login busy guard missing');
 if (!clientText.includes('部分账号失败')) fail('failure prefix matcher missing');
-if (!clientText.includes("autoInstall && /^(导入失败|导入未完成|导入调度失败)")) fail('install failure prefix matcher missing');
+if (!clientText.includes("/^(导入失败|导入未完成|导入调度失败)/.test(statusText)")) fail('install failure prefix matcher missing');
 if (!indexText.includes('/^同步失败/.test(String(result')) fail('auth detection must require failure prefix');
 if (!clientText.includes('同步完成：检测到新对话')) fail('pending install prefix missing');
 if (!indexText.includes('数据集损坏|写入失败|全部抓取失败|失败')) fail('partial failure suffix matcher missing');
