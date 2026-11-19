@@ -47,6 +47,7 @@ if (/\bout\.(write|close)\(/.test(indexText)) fail('engine log handle must not b
 if (!indexText.includes('[title omitted]')) fail('sync log title redaction missing');
 if (!indexText.includes("child.once('error'")) fail('engine spawn error not handled');
 if (!indexText.includes('[account]')) fail('sync log account redaction missing');
+if (!indexText.includes('没有账号成功同步')) fail('all-accounts-failed status missing');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes("return '06-misc'")) fail('neutral category fallback missing');
 for (const f of ['catalog.cjs', 'export.cjs']) if (!fs.readFileSync(path.join(root, 'lib', 'engine', f), 'utf8').includes('if (!fs.existsSync(rawDir)) process.exit(0)')) fail(f + ' missing empty workspace guard');
