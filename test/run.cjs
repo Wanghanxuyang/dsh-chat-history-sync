@@ -147,7 +147,9 @@ if (!indexText.includes('noChangeText')) fail('auto no-change partial failure lo
 if (!indexText.includes('!/^ - /.test(line)')) fail('old account summary log scrub missing');
 if (!clientText.includes('安装未完成')) fail('install failure card copy missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes("missing cache（DSH 启动时会重建）")) fail('install cache verification missing');
-if (!clientText.includes('InstallSuccessToast') || !clientText.includes('shell.overlay')) fail('install success overlay missing');
+if (!clientText.includes("succeeded ? '安装成功'")) fail('footer install success state missing');
+if (clientText.includes('InstallSuccessToast')) fail('separate install success overlay still present');
+if (!indexText.includes('installSucceeded')) fail('install success state missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('仅记录，不判定安装失败')) fail('non-fatal install verify missing');
 if (!clientText.includes('即将重启')) fail('restarting footer state missing');
 if (!indexText.includes('installScheduled')) fail('install scheduled state missing');
