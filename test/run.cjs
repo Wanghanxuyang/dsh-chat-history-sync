@@ -56,6 +56,7 @@ if (!clientText.includes('重新登录')) fail('relogin action missing');
 if (!clientText.includes('登录失效，请点')) fail('auth failure hint missing');
 if (!clientText.includes('等待浏览器登录完成')) fail('footer login wait guard missing');
 if (!indexText.includes("cfgGet('loginStatus', '')")) fail('host login/sync guard missing');
+if (!indexText.includes('return !failed')) fail('prefix rename failure retry missing');
 if (clientText.includes('!hasAccounts && /正在打开')) fail('loginPending must not depend on empty accounts');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes("return '06-misc'")) fail('neutral category fallback missing');
 for (const f of ['catalog.cjs', 'export.cjs']) if (!fs.readFileSync(path.join(root, 'lib', 'engine', f), 'utf8').includes('if (!fs.existsSync(rawDir)) process.exit(0)')) fail(f + ' missing empty workspace guard');
