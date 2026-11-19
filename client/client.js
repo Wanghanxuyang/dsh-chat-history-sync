@@ -131,7 +131,8 @@ window.__ModuleLoader__.load({
       const restarting = phase === 'scheduled';
       const succeeded = phase === 'succeeded';
       const reporting = phase === 'reporting';
-      const installReady = !running && !restarting && !succeeded && !reporting && !meta.empty && !meta.noEnabled && phase === 'pending';
+      const reportFailed = phase === 'report_failed';
+      const installReady = !running && !restarting && !succeeded && !reporting && !meta.empty && !meta.noEnabled && (phase === 'pending' || reportFailed);
       const blocked = running || restarting || succeeded || reporting || meta.empty || meta.noEnabled || loginWaits || authFailed;
       React.useEffect(() => {
         if (!meta.installScheduled && !meta.pending && meta.importPhase !== 'pending') setInstalling(false);
@@ -169,22 +170,35 @@ window.__ModuleLoader__.load({
       };
       const icon = succeeded
         ? h('i', { style: { display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: 'var(--dsw-alias-state-success, #30a46c)', boxShadow: '0 0 0 4px rgba(48,164,108,.18)' } })
-        : (restarting ? '⏻' : (reporting ? '…' : (installing || running ? '…' : (failed ? '!' : (installReady ? '↓' : '↻')))));
+        : (restarting ? '⏻' : (reportFailed || failed ? '!' : (reporting ? '…' : (installing || running ? '…' : (installReady ? '↓' : '↻')))));
       const dot = (meta.pending || meta.deferred) && !running && !restarting && !succeeded
         ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning, #f5a623)' } })
         : null;
+      let stateTitle = '立即同步聊天历史';
+      if (meta.empty) stateTitle = '请先在设置中登录账号';
+      else if (meta.noEnabled) stateTitle = '请先在设置中启用账号';
+      else if (authFailed) stateTitle = '登录已失效，请先在设置页重新登录';
+      else if (loginWaits) stateTitle = '等待浏览器登录完成';
+      else if (succeeded) stateTitle = '导入成功，新对话已加入 DSH';
+      else if (restarting) stateTitle = '导入已安排，即将重启 DSH';
+      else if (reporting) stateTitle = '正在生成导入报告…';
+      else if (reportFailed) stateTitle = '报告未生成，点击重试导入';
+      else if (failed) stateTitle = '未触发，点击重试';
+      else if (running) stateTitle = '正在同步，可在设置页查看进度';
+      else if (installReady) stateTitle = '新对话待导入，点击立即导入并重启 DSH';
+      else if (installing) stateTitle = '正在安排导入…';
       return h('button', {
         type: 'button',
         className: 'msx-footer-action',
-        title: succeeded ? '导入成功，新对话已加入 DSH' : (restarting ? '导入已安排，即将重启 DSH' : (reporting ? '正在生成导入报告…' : (installing ? '正在安排导入…' : (failed ? '未触发，点击重试' : (installReady ? '新对话待导入，点击立即导入并重启 DSH' : (meta.empty ? '请先在设置中登录账号' : (meta.noEnabled ? '请先在设置中启用账号' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步，可在设置页查看进度' : '立即同步聊天历史')))))))))),
-        'aria-label': succeeded ? '导入成功，新对话已加入 DSH' : (restarting ? '导入已安排，即将重启 DSH' : (reporting ? '正在生成导入报告' : (installing ? '正在安排导入' : (failed ? '未触发，点击重试' : (installReady ? '新对话待导入，点击立即导入' : (meta.empty ? '未登录，请先在设置中登录账号' : (meta.noEnabled ? '未启用账号，请先在设置中启用' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步聊天历史' : '立即同步聊天历史')))))))))),
+        title: stateTitle,
+        'aria-label': stateTitle,
         'aria-busy': restarting || reporting || undefined,
         disabled: blocked,
         onClick: run,
         onMouseEnter: () => setHover(true),
         onMouseLeave: () => setHover(false),
         style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: hover && !running && !restarting && !succeeded && !reporting ? 'var(--dsw-alias-bg-layer-2)' : 'transparent', color: succeeded ? 'var(--dsw-alias-state-success, #30a46c)' : (restarting ? 'var(--dsw-alias-state-warning, #b86e00)' : 'var(--dsw-alias-label-secondary)'), font: 'inherit', fontSize: 13, fontWeight: succeeded ? 600 : 'normal', cursor: restarting || succeeded || reporting ? 'default' : 'pointer' },
-      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, icon, dot), wide ? h('span', null, succeeded ? '导入成功' : (restarting ? '即将重启' : (reporting ? '生成报告中' : (installing ? '正在安排导入' : (failed ? '未触发' : (installReady ? '立即导入' : (meta.empty ? '未登录' : (meta.noEnabled ? '先启用' : (authFailed ? '需重新登录' : (loginWaits ? '等待登录' : (running ? '正在同步' : '同步聊天历史'))))))))))) : null);
+      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, icon, dot), wide ? h('span', null, succeeded ? '导入成功' : (restarting ? '即将重启' : (reportFailed ? '重试导入' : (reporting ? '生成报告中' : (installing ? '正在安排导入' : (failed ? '未触发' : (installReady ? '立即导入' : (meta.empty ? '未登录' : (meta.noEnabled ? '先启用' : (authFailed ? '需重新登录' : (loginWaits ? '等待登录' : (running ? '正在同步' : '同步聊天历史')))))))))))) : null);
     }
 
     class SlotBoundary extends React.Component {
@@ -428,13 +442,15 @@ window.__ModuleLoader__.load({
       const progressText = progressMatch ? '正在同步 ' + progressMatch[1] + '/' + progressMatch[2] : '正在同步…';
       const actionVisible = autoInstall && /^(导入完成|导入失败|导入未完成|导入调度失败|已安排导入|已取消本次导入|有会话待导入)/.test(statusText);
       const importPhase = String((value && value.importPhase) || '');
-      const installFailed = autoInstall && (importPhase === 'failed' || /^(导入失败|导入未完成|导入调度失败)/.test(statusText));      const statusLine = value ? (notice || msg || (running ? progressText : (value.status === 'error' ? String(value.statusText || '同步失败') : (actionVisible ? statusText : (value.lastSyncAt ? '已同步' : '尚未同步'))))) : (notice || msg || '读取中…');
+      const reportFailed = importPhase === 'report_failed';
+      const installFailed = autoInstall && (importPhase === 'failed' || reportFailed || /^(导入失败|导入未完成|导入调度失败)/.test(statusText));
+      const statusLine = value ? (notice || msg || (running ? progressText : (value.status === 'error' ? String(value.statusText || '同步失败') : (actionVisible ? statusText : (value.lastSyncAt ? '已同步' : '尚未同步'))))) : (notice || msg || '读取中…');
       const pendingText = /^同步完成：检测到新对话/.test(String((value && value.statusText) || ''));
       const pendingInstall = (installPending || pendingText) && autoInstall;
-      const needInstall = !installDeferred && pendingInstall;
+      const needInstall = (!installDeferred && pendingInstall) || reportFailed;
       const restarting = importPhase === 'scheduled' || !!(value && value.installScheduled);
       const reporting = importPhase === 'reporting';
-      const shownStatus = loginPending ? '等待登录…' : (restarting ? '导入已安排 · 即将重启' : (reporting ? '正在生成导入报告…' : ((!running && pendingText) ? '同步完成 · 待确认导入' : statusLine)));
+      const shownStatus = loginPending ? '等待登录…' : (restarting ? '导入已安排 · 即将重启' : (reporting ? '正在生成导入报告…' : (reportFailed ? '导入完成，但报告未生成' : ((!running && pendingText) ? '同步完成 · 待确认导入' : statusLine))));
       const failed = !!(value && (value.status === 'error' || /^同步失败|^自动同步失败|部分账号失败|^导入失败|^导入未完成|^导入调度失败/.test(String(shownStatus || ''))));
       const needRelogin = failed && /^(同步失败|自动同步失败).*(登录失效|风控|401|403)/.test(statusText);
       const fmtTime = (ts) => {
@@ -458,7 +474,7 @@ window.__ModuleLoader__.load({
                 h('span', { role: 'status', 'aria-live': running ? 'off' : 'polite', style: { fontSize: 14, fontWeight: 600, color: failed ? 'var(--dsw-alias-state-error)' : 'var(--dsw-alias-label-primary)' } }, shownStatus),
                 !running ? h('i', { 'aria-hidden': 'true', style: { display: 'inline-block', flex: '0 0 auto', width: 6, height: 6, borderRadius: '50%', background: failed ? 'var(--dsw-alias-state-error, #e5484d)' : (pendingInstall ? 'var(--dsw-alias-state-warning, #f5a623)' : (hasAccounts ? 'var(--dsw-alias-state-success, #30a46c)' : 'var(--dsw-alias-label-tertiary, #8b8f98)')) } }) : null,
               ),
-              h('div', { className: 'msx-sub' }, !value ? '正在读取同步设置…' : (loginPending ? '请在弹出的浏览器完成登录。' : (restarting ? '约 20 秒后自动重启 DSH；无需再点。' : (reporting ? '导入已写入，正在生成可见报告。' : (running ? '后台同步中，可离开此页。' : (!hasAccounts ? (hasAnyAccounts ? '先启用账号，再同步。' : '先登录账号，再同步。') : (installFailed ? '可稍后重试导入。' : (needRelogin ? '登录失效，请点「重新登录」。' : (failed ? '可重试，或查看报告。' : '同步时可离开此页。'))))))))),
+              h('div', { className: 'msx-sub' }, !value ? '正在读取同步设置…' : (loginPending ? '请在弹出的浏览器完成登录。' : (restarting ? '约 20 秒后自动重启 DSH；无需再点。' : (reporting ? '导入已写入，正在生成可见报告。' : (reportFailed ? '导入已写入，但报告会话未生成；可重试导入。' : (running ? '后台同步中，可离开此页。' : (!hasAccounts ? (hasAnyAccounts ? '先启用账号，再同步。' : '先登录账号，再同步。') : (installFailed ? '可稍后重试导入。' : (needRelogin ? '登录失效，请点「重新登录」。' : (failed ? '可重试，或查看报告。' : '同步时可离开此页。')))))))))),
             ),
             h('div', { style: { display: 'flex', gap: 8, flexShrink: 0 } },
               loginPending ? h('button', { className: 'msx-btn', disabled: busy, 'aria-label': '取消登录', onClick: () => void write('loginCancel', Date.now()) }, '取消登录') : null,
@@ -502,16 +518,16 @@ window.__ModuleLoader__.load({
             } }, installFailed ? '!' : '↓'),
             h('div', { style: { minWidth: 0, flex: 1 } },
               h('div', { style: { display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' } },
-                h('div', { className: 'msx-label', style: { fontSize: 14 } }, installFailed ? '导入未完成' : '检测到新对话'),
+                h('div', { className: 'msx-label', style: { fontSize: 14 } }, reportFailed ? '报告未生成' : (installFailed ? '导入未完成' : '检测到新对话')),
                 h('span', { style: {
                   fontSize: 11, lineHeight: '16px', padding: '1px 7px', borderRadius: 999,
                   background: installFailed ? 'rgba(229,72,77,.12)' : 'rgba(245,166,35,.16)',
                   color: installFailed ? 'var(--dsw-alias-state-error, #e5484d)' : 'var(--dsw-alias-state-warning, #b86e00)',
                 } }, installFailed ? '可重试' : '待确认'),
               ),
-              h('div', { className: 'msx-sub', style: { marginTop: 4, lineHeight: 1.5 } }, installFailed ? '待导入状态已保留。重试会再次重启 DSH。' : '加入 DSH 会重启一次；请先完成当前回复。'),
+              h('div', { className: 'msx-sub', style: { marginTop: 4, lineHeight: 1.5 } }, reportFailed ? '导入已写入，但报告会话未生成。重试会再次导入并重启 DSH。' : (installFailed ? '待导入状态已保留。重试会再次重启 DSH。' : '加入 DSH 会重启一次；请先完成当前回复。')),
               h('div', { style: { display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' } },
-                h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running, 'aria-label': installFailed ? '重试导入并重启 DSH' : '现在加入并重启 DSH', onClick: () => void write('installNow', true) }, installFailed ? '重试导入' : '现在加入并重启'),
+                h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running, 'aria-label': (installFailed || reportFailed) ? '重试导入并重启 DSH' : '现在加入并重启 DSH', onClick: () => void write('installNow', true) }, (installFailed || reportFailed) ? '重试导入' : '现在加入并重启'),
                 h('button', { className: 'msx-btn', disabled: busy, 'aria-label': '稍后再说', onClick: () => void write('installCancel', true) }, '稍后再说'),
               ),
             ),
