@@ -136,7 +136,7 @@ window.__ModuleLoader__.load({
       const succeeded = phase === 'succeeded';
       const reporting = phase === 'reporting';
       const reportFailed = phase === 'report_failed';
-      const installReady = !running && !restarting && !succeeded && !reporting && !meta.empty && !meta.noEnabled && (phase === 'pending' || reportFailed);
+      const installReady = !running && !restarting && !succeeded && !reporting && !meta.empty && !meta.noEnabled && (phase === 'pending' || phase === 'report_failed' || phase === 'failed');
       const blocked = running || restarting || succeeded || reporting || meta.empty || meta.noEnabled || loginWaits || authFailed;
       React.useEffect(() => {
         if (!meta.installScheduled && !meta.pending && meta.importPhase !== 'pending') setInstalling(false);
@@ -187,6 +187,7 @@ window.__ModuleLoader__.load({
       else if (restarting) stateTitle = '导入已安排，即将重启 DSH';
       else if (reporting) stateTitle = '正在生成导入报告…';
       else if (reportFailed) stateTitle = '报告未生成，点击重试导入';
+      else if (phase === 'failed') stateTitle = '导入失败，点击重试导入';
       else if (failed) stateTitle = '未触发，点击重试';
       else if (running) stateTitle = '正在同步，可在设置页查看进度';
       else if (installReady) stateTitle = '新对话待导入，点击立即导入并重启 DSH';
