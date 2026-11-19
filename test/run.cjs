@@ -123,7 +123,8 @@ if (!indexText.includes('\\u202a-\\u202e')) fail('bidi control sanitization miss
 if (!indexText.includes('\\u200b-\\u200f')) fail('zero-width control sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes("'# 参考来源 — '")) fail('source heading sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('const mdText =')) fail('search markdown escaping missing');
-if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('mdUrl(conv.__sources')) fail('reference source link encoding missing');
+if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('mdPath(conv.__sources')) fail('reference source link encoding missing');
+if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('const mdPath =')) fail('path segment encoding missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
