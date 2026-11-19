@@ -100,7 +100,7 @@ window.__ModuleLoader__.load({
       const [busy, setBusy] = React.useState(false);
       const [failed, setFailed] = React.useState(false);
       const [hover, setHover] = React.useState(false);
-      const [meta, setMeta] = React.useState({ running: false, pending: false, deferred: false, empty: false, noEnabled: false, loginWaits: false, authFailed: false, installScheduled: false });
+      const [meta, setMeta] = React.useState({ running: false, pending: false, deferred: false, empty: false, noEnabled: false, loginWaits: false, authFailed: false, installScheduled: false, succeeded: false });
       const [installing, setInstalling] = React.useState(false);
       React.useEffect(() => {
         let alive = true;
@@ -114,7 +114,7 @@ window.__ModuleLoader__.load({
             if (alive && ns) {
               let accounts = [];
               try { accounts = JSON.parse((ns.value && ns.value.accounts) || '[]'); } catch (e) { accounts = []; }
-              setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending) && ns.value.autoInstall !== false, deferred: !!(ns.value && ns.value.installDeferred) && ns.value.autoInstall !== false, empty: !accounts.length, noEnabled: accounts.length > 0 && !accounts.some((a) => a && a.enabled !== false), loginWaits: /正在打开登录页|请在弹出的浏览器/.test(String((ns.value && ns.value.loginStatus) || '')), authFailed: !!(ns.value && ns.value.status === 'error' && /^(同步失败|自动同步失败).*(登录失效|风控|401|403)/.test(String(ns.value.statusText || ''))), installScheduled: !!(ns.value && ns.value.installScheduled) });
+              setMeta({ running: ns.value && ns.value.status === 'running', pending: !!(ns.value && ns.value.installPending) && ns.value.autoInstall !== false, deferred: !!(ns.value && ns.value.installDeferred) && ns.value.autoInstall !== false, empty: !accounts.length, noEnabled: accounts.length > 0 && !accounts.some((a) => a && a.enabled !== false), loginWaits: /正在打开登录页|请在弹出的浏览器/.test(String((ns.value && ns.value.loginStatus) || '')), authFailed: !!(ns.value && ns.value.status === 'error' && /^(同步失败|自动同步失败).*(登录失效|风控|401|403)/.test(String(ns.value.statusText || ''))), installScheduled: !!(ns.value && ns.value.installScheduled), succeeded: !!(ns.value && ns.value.installSucceeded) });
             }
           } catch (e) {}
         };
@@ -126,8 +126,9 @@ window.__ModuleLoader__.load({
       const loginWaits = !!meta.loginWaits;
       const authFailed = !!meta.authFailed;
       const restarting = !!meta.installScheduled;
-      const installReady = !running && !restarting && !meta.empty && !meta.noEnabled && !!meta.pending && !meta.deferred;
-      const blocked = running || restarting || meta.empty || meta.noEnabled || loginWaits || authFailed;
+      const succeeded = !!meta.succeeded;
+      const installReady = !running && !restarting && !succeeded && !meta.empty && !meta.noEnabled && !!meta.pending && !meta.deferred;
+      const blocked = running || restarting || succeeded || meta.empty || meta.noEnabled || loginWaits || authFailed;
       React.useEffect(() => {
         if (!meta.installScheduled && !meta.pending) setInstalling(false);
       }, [meta.installScheduled, meta.pending]);
@@ -165,15 +166,15 @@ window.__ModuleLoader__.load({
       return h('button', {
         type: 'button',
         className: 'msx-footer-action',
-        title: restarting ? '安装已安排，即将重启 DSH' : (installing ? '正在安排安装…' : (failed ? '未触发，点击重试' : (installReady ? '新会话待安装，点击立即安装并重启 DSH' : (meta.empty ? '请先在设置中登录账号' : (meta.noEnabled ? '请先在设置中启用账号' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步，可在设置页查看进度' : '立即同步聊天历史')))))))),
-        'aria-label': restarting ? '安装已安排，即将重启 DSH' : (installing ? '正在安排安装' : (failed ? '未触发，点击重试' : (installReady ? '新会话待安装，点击立即安装' : (meta.empty ? '未登录，请先在设置中登录账号' : (meta.noEnabled ? '未启用账号，请先在设置中启用' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步聊天历史' : '立即同步聊天历史')))))))),
-        'aria-busy': running || restarting || undefined,
+        title: succeeded ? '安装成功，新会话已加入 DSH' : (restarting ? '安装已安排，即将重启 DSH' : (installing ? '正在安排安装…' : (failed ? '未触发，点击重试' : (installReady ? '新会话待安装，点击立即安装并重启 DSH' : (meta.empty ? '请先在设置中登录账号' : (meta.noEnabled ? '请先在设置中启用账号' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步，可在设置页查看进度' : '立即同步聊天历史'))))))))),
+        'aria-label': succeeded ? '安装成功，新会话已加入 DSH' : (restarting ? '安装已安排，即将重启 DSH' : (installing ? '正在安排安装' : (failed ? '未触发，点击重试' : (installReady ? '新会话待安装，点击立即安装' : (meta.empty ? '未登录，请先在设置中登录账号' : (meta.noEnabled ? '未启用账号，请先在设置中启用' : (authFailed ? '登录已失效，请先在设置页重新登录' : (loginWaits ? '等待浏览器登录完成' : (running ? '正在同步聊天历史' : '立即同步聊天历史'))))))))),
+        'aria-busy': restarting || undefined,
         disabled: blocked,
         onClick: run,
         onMouseEnter: () => setHover(true),
         onMouseLeave: () => setHover(false),
-        style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: hover && !running && !restarting ? 'var(--dsw-alias-bg-layer-2)' : 'transparent', color: restarting ? 'var(--dsw-alias-state-warning, #b86e00)' : 'var(--dsw-alias-label-secondary)', font: 'inherit', fontSize: 13, cursor: restarting ? 'default' : 'pointer' },
-      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, restarting ? '⏻' : (installing || running ? '…' : (failed ? '!' : (installReady ? '↓' : '↻'))), (meta.pending || meta.deferred) && !running && !restarting ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning, #f5a623)' } }) : null), wide ? h('span', null, restarting ? '即将重启' : (installing ? '正在安排安装' : (failed ? '未触发' : (installReady ? '立即安装' : (meta.empty ? '未登录' : (meta.noEnabled ? '先启用' : (authFailed ? '需重新登录' : (loginWaits ? '等待登录' : (running ? '正在同步' : '同步聊天历史'))))))))) : null);
+        style: { display: 'flex', alignItems: 'center', justifyContent: wide ? 'flex-start' : 'center', gap: 8, width: '100%', padding: '8px 10px', border: 'none', borderRadius: 9, background: hover && !running && !restarting && !succeeded ? 'var(--dsw-alias-bg-layer-2)' : 'transparent', color: succeeded ? 'var(--dsw-alias-state-success, #30a46c)' : (restarting ? 'var(--dsw-alias-state-warning, #b86e00)' : 'var(--dsw-alias-label-secondary)'), font: 'inherit', fontSize: 13, fontWeight: succeeded ? 600 : 'normal', cursor: restarting || succeeded ? 'default' : 'pointer' },
+      }, h('span', { 'aria-hidden': 'true', style: { fontSize: 16, lineHeight: 1, position: 'relative' } }, succeeded ? h('i', { style: { display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: 'var(--dsw-alias-state-success, #30a46c)', boxShadow: '0 0 0 4px rgba(48,164,108,.18)' } }) : (restarting ? '⏻' : (installing || running ? '…' : (failed ? '!' : (installReady ? '↓' : '↻')))), (meta.pending || meta.deferred) && !running && !restarting && !succeeded ? h('i', { style: { position: 'absolute', right: -3, top: -2, width: 6, height: 6, borderRadius: '50%', background: 'var(--dsw-alias-state-warning, #f5a623)' } }) : null), wide ? h('span', null, succeeded ? '安装成功' : (restarting ? '即将重启' : (installing ? '正在安排安装' : (failed ? '未触发' : (installReady ? '立即安装' : (meta.empty ? '未登录' : (meta.noEnabled ? '先启用' : (authFailed ? '需重新登录' : (loginWaits ? '等待登录' : (running ? '正在同步' : '同步聊天历史')))))))))) : null);
     }
 
     class SlotBoundary extends React.Component {
@@ -190,58 +191,6 @@ window.__ModuleLoader__.load({
 
     function CardSafe() { return h(SlotBoundary, null, h(Card)); }
     function FooterSafe(props) { return h(SlotBoundary, null, h(FooterEntry, props)); }
-
-    function InstallSuccessToast() {
-      const [visible, setVisible] = React.useState(false);
-      const lastStatus = React.useRef('');
-      const timer = React.useRef(null);
-      React.useEffect(() => {
-        let alive = true;
-        const tick = async () => {
-          try {
-            const res = await clientCtx.remote.settings.describe();
-            const doc = res && res.ok ? res.value : null;
-            const list = (doc && doc.namespaces) || [];
-            const ns = list.find((n) => n.ns === NS) || list.find((n) => String(n.ns).endsWith(':' + NS) || String(n.ns).endsWith('/' + NS));
-            if (!alive || !ns) return;
-            const statusText = String((ns.value && ns.value.statusText) || '');
-            if (statusText !== lastStatus.current) {
-              lastStatus.current = statusText;
-              if (statusText === '安装完成') {
-                setVisible(true);
-                if (timer.current) clearTimeout(timer.current);
-                timer.current = setTimeout(() => setVisible(false), 12000);
-              }
-            }
-          } catch (e) {}
-        };
-        tick();
-        const id = setInterval(tick, 1500);
-        return () => { alive = false; clearInterval(id); if (timer.current) clearTimeout(timer.current); };
-      }, []);
-      if (!visible) return null;
-      return h('div', {
-        role: 'status',
-        'aria-live': 'polite',
-        style: {
-          position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 1000,
-          display: 'flex', alignItems: 'center', gap: 12, maxWidth: 'min(92vw, 480px)',
-          padding: '11px 14px 11px 13px', borderRadius: 14,
-          background: 'var(--dsw-alias-bg-layer-2, #1f2329)',
-          border: '1px solid var(--dsw-alias-state-success, #30a46c)',
-          boxShadow: '0 12px 32px rgba(0,0,0,.24)',
-          color: 'var(--dsw-alias-label-primary)', fontSize: 13,
-        },
-      },
-        h('i', { 'aria-hidden': 'true', style: { width: 10, height: 10, borderRadius: '50%', flex: '0 0 auto', background: 'var(--dsw-alias-state-success, #30a46c)', boxShadow: '0 0 0 4px rgba(48,164,108,.18)' } }),
-        h('div', { style: { minWidth: 0 } },
-          h('div', { style: { fontWeight: 600 } }, '安装成功'),
-          h('div', { style: { opacity: .72, fontSize: 12, marginTop: 2 } }, '新会话已加入 DSH'),
-        ),
-        h('button', { type: 'button', className: 'msx-linkbtn', style: { marginLeft: 4, flexShrink: 0 }, onClick: () => setVisible(false) }, '知道了'),
-      );
-    }
-
 
     function Card() {
       const [value, setValue] = React.useState(null);
@@ -681,12 +630,6 @@ window.__ModuleLoader__.load({
           order: 27,
           label: () => '同步聊天历史',
         }, FooterSafe));
-        ctx.slots.inject('shell.overlay', () => ctx.slots.register({
-          name: 'shell.overlay',
-          id: 'chat-history-sync-install-success',
-          order: 100,
-          label: '安装成功提醒',
-        }, InstallSuccessToast));
       },
     };
   },
