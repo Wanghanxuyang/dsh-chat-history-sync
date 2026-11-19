@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.12.46
+
+- 新增 `importPhase` 单一状态：idle/pending/deferred/scheduled/reporting/succeeded/failed
+- 宿主每次持久化状态时统一推导 `importPhase`，客户端不再用多个布尔值拼导入状态
+- 生成报告阶段独立显示“正在生成导入报告”，不会提前变绿或变回同步
+- 新增导入状态机单元测试
+
 ## 0.12.45
 
 - 设置页“本次变更”改用独立的 `buildSyncDelta`，并修复“只更新、无新增”的账号被漏掉的问题
