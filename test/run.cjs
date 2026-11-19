@@ -102,6 +102,7 @@ if (!indexText.includes('const nextPrefix =')) fail('empty account prefix fallba
 if (!indexText.includes('seenPrefixes')) fail('duplicate account prefix fallback missing');
 if (!indexText.includes('while (seenPrefixes.has')) fail('duplicate prefix loop missing');
 if (!indexText.includes('usedPrefixes')) fail('login prefix/root collision guard missing');
+if (!clientText.includes('/^(同步失败|自动同步失败).*(登录失效|风控|401|403)/')) fail('footer auth prefix missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
