@@ -364,7 +364,7 @@ window.__ModuleLoader__.load({
       const hasAnyAccounts = accounts.length > 0;
       const patchRow = (i, patch) => { const n = accounts.slice(); n[i] = { ...n[i], ...patch }; setAccounts(n); };
       const loginStatus = value && value.loginStatus;
-      const loginPending = !hasAccounts && /正在打开登录页|请在弹出的浏览器/.test(String(loginStatus || ''));
+      const loginPending = /正在打开登录页|请在弹出的浏览器/.test(String(loginStatus || ''));
       const statusText = String((value && value.statusText) || '');
       const progressMatch = statusText.match(/正在同步\s+(\d+)\/(\d+)/);
       const progressText = progressMatch ? '正在同步 ' + progressMatch[1] + '/' + progressMatch[2] : '正在同步…';
