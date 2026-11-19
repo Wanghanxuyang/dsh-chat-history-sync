@@ -309,7 +309,7 @@ window.__ModuleLoader__.load({
             if (fresh) r = await clientCtx.remote.settings.mutate(nsRef.current, ops, fresh.revision);
           }
           if (r && r.ok) {
-            setRevision(r.value.revision); lastRev.current = r.value.revision; setValue(r.value.value || {}); setMsg('已保存');
+            setRevision(r.value.revision); lastRev.current = r.value.revision; setValue(r.value.value || {}); setNotice(''); setMsg('已保存');
             setTimeout(() => setMsg((cur) => (cur === '已保存' ? '' : cur)), 1800);
           } else { flash('保存被拒绝'); void load(); }
         } catch (e) { flash('保存失败：' + (e && e.message)); }
@@ -318,6 +318,7 @@ window.__ModuleLoader__.load({
 
       const trigger = async () => {
         setBusy(true);
+        setNotice('');
         const now = Date.now();
         setStartedAt(now);
         setMsg('同步中，可以离开此页面；完成后会生成同步报告');
@@ -348,6 +349,7 @@ window.__ModuleLoader__.load({
 
       const login = async () => {
         setBusy(true);
+        setNotice('');
         try {
           const ops = [{ op: 'set', path: ['loginRequest'], value: Date.now() }];
           let r = await clientCtx.remote.settings.mutate(nsRef.current, ops, revision);
