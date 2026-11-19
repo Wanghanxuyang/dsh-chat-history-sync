@@ -422,7 +422,8 @@ window.__ModuleLoader__.load({
       const pendingText = /^同步完成：检测到新对话/.test(String((value && value.statusText) || ''));
       const pendingInstall = (installPending || pendingText) && autoInstall;
       const needInstall = !installDeferred && pendingInstall;
-      const shownStatus = loginPending ? '等待登录…' : ((!running && pendingText) ? '同步完成 · 待确认导入' : statusLine);
+      const restarting = !!(value && value.installScheduled);
+      const shownStatus = loginPending ? '等待登录…' : (restarting ? '导入已安排 · 即将重启' : ((!running && pendingText) ? '同步完成 · 待确认导入' : statusLine));
       const failed = !!(value && (value.status === 'error' || /^同步失败|^自动同步失败|部分账号失败|^导入失败|^导入未完成|^导入调度失败/.test(String(shownStatus || ''))));
       const needRelogin = failed && /^(同步失败|自动同步失败).*(登录失效|风控|401|403)/.test(statusText);
       const fmtTime = (ts) => {
@@ -446,13 +447,13 @@ window.__ModuleLoader__.load({
                 h('span', { role: 'status', 'aria-live': running ? 'off' : 'polite', style: { fontSize: 14, fontWeight: 600, color: failed ? 'var(--dsw-alias-state-error)' : 'var(--dsw-alias-label-primary)' } }, shownStatus),
                 !running ? h('i', { 'aria-hidden': 'true', style: { display: 'inline-block', flex: '0 0 auto', width: 6, height: 6, borderRadius: '50%', background: failed ? 'var(--dsw-alias-state-error, #e5484d)' : (pendingInstall ? 'var(--dsw-alias-state-warning, #f5a623)' : (hasAccounts ? 'var(--dsw-alias-state-success, #30a46c)' : 'var(--dsw-alias-label-tertiary, #8b8f98)')) } }) : null,
               ),
-              h('div', { className: 'msx-sub' }, !value ? '正在读取同步设置…' : (loginPending ? '请在弹出的浏览器完成登录。' : (running ? '后台同步中，可离开此页。' : (!hasAccounts ? (hasAnyAccounts ? '先启用账号，再同步。' : '先登录账号，再同步。') : (installFailed ? '可稍后重试导入。' : (needRelogin ? '登录失效，请点「重新登录」。' : (failed ? '可重试，或查看报告。' : '同步时可离开此页。'))))))),
+              h('div', { className: 'msx-sub' }, !value ? '正在读取同步设置…' : (loginPending ? '请在弹出的浏览器完成登录。' : (restarting ? '约 20 秒后自动重启 DSH；无需再点。' : (running ? '后台同步中，可离开此页。' : (!hasAccounts ? (hasAnyAccounts ? '先启用账号，再同步。' : '先登录账号，再同步。') : (installFailed ? '可稍后重试导入。' : (needRelogin ? '登录失效，请点「重新登录」。' : (failed ? '可重试，或查看报告。' : '同步时可离开此页。')))))))),
             ),
             h('div', { style: { display: 'flex', gap: 8, flexShrink: 0 } },
               loginPending ? h('button', { className: 'msx-btn', disabled: busy, 'aria-label': '取消登录', onClick: () => void write('loginCancel', Date.now()) }, '取消登录') : null,
               running ? h('button', { className: 'msx-btn', disabled: busy, 'aria-label': '取消当前同步', onClick: () => void write('cancelSync', true) }, '取消') : null,
               needRelogin ? h('button', { className: 'msx-btn', disabled: busy || running || loginPending, 'aria-label': '重新登录 DeepSeek 账号', onClick: () => void write('loginRequest', Date.now()) }, '重新登录') : null,
-              h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running || !hasAccounts || !value || loginPending || needRelogin, 'aria-label': !value ? '加载中' : (loginPending ? '等待浏览器登录' : (!hasAccounts ? (hasAnyAccounts ? '请先启用账号' : '登录 DeepSeek 账号') : (running ? '同步进行中' : (needRelogin ? '请先重新登录' : '立即同步聊天历史')))), onClick: !hasAccounts && !hasAnyAccounts ? login : trigger }, !value ? '加载中' : (loginPending ? '登录中…' : (!hasAccounts ? (hasAnyAccounts ? '先启用' : '登录账号') : (running ? '同步中…' : (needRelogin ? '先重新登录' : '立即同步'))))),
+              h('button', { className: 'msx-btn msx-btn-primary', disabled: busy || running || restarting || !hasAccounts || !value || loginPending || needRelogin, 'aria-label': !value ? '加载中' : (restarting ? '导入已安排，即将重启 DSH' : (loginPending ? '等待浏览器登录' : (!hasAccounts ? (hasAnyAccounts ? '请先启用账号' : '登录 DeepSeek 账号') : (running ? '同步进行中' : (needRelogin ? '请先重新登录' : '立即同步聊天历史'))))), onClick: !hasAccounts && !hasAnyAccounts ? login : trigger }, !value ? '加载中' : (restarting ? '即将重启' : (loginPending ? '登录中…' : (!hasAccounts ? (hasAnyAccounts ? '先启用' : '登录账号') : (running ? '同步中…' : (needRelogin ? '先重新登录' : '立即同步')))))),
             ),
           ),
           running ? h('div', { className: 'msx-kbar', role: 'progressbar', 'aria-busy': 'true', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-valuenow': progressMatch ? progressPct : undefined, 'aria-valuetext': progressMatch ? '同步 ' + progressMatch[1] + '/' + progressMatch[2] : '同步进行中' }, h('i', null)) : null,
