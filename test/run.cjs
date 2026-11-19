@@ -99,7 +99,7 @@ if (!indexText.includes('noChangeText')) fail('auto no-change partial failure lo
 if (!indexText.includes('!/^ - /.test(line)')) fail('old account summary log scrub missing');
 if (!clientText.includes('上次安装失败')) fail('install failure card copy missing');
 if (!indexText.includes('patch.accountHealth = JSON.stringify(health)')) fail('account health not cleared on success');
-if (!indexText.includes('^(.+?):\\s*总数')) fail('account name with spaces not supported');
+if (!indexText.includes('^(.+):\\s*总数')) fail('account name with spaces not supported');
 if (!clientText.includes('installDeferred && autoInstall')) fail('install reminder off not honored');
 if (indexText.includes('publish({ loginStatus')) fail('login status must be persisted');
 if (!indexText.includes("loginStatus: ''")) fail('stale login status cleanup missing');
