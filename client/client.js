@@ -25,7 +25,10 @@ window.__ModuleLoader__.load({
         onFocus: () => { editing.current = true; },
         onChange: (e) => setV(e.target.value),
         onBlur: () => { editing.current = false; if (v !== (value || '')) onCommit(v); },
-        onKeyDown: (e) => { if (e.key === 'Enter') e.currentTarget.blur(); },
+        onKeyDown: (e) => {
+          if (e.key === 'Enter') e.currentTarget.blur();
+          if (e.key === 'Escape') { setV(value || ''); editing.current = false; e.currentTarget.blur(); }
+        },
       });
     };
 
