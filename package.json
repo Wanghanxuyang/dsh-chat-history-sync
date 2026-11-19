@@ -1,7 +1,7 @@
 {
   "name": "dsh-chat-history-sync",
   "description": "免费。把 DeepSeek 账号的网页端和手机 App 聊天记录同步进 DSH：按月份归档、生成分类报告、可继续对话。只增不减，不碰自建会话。Windows only，token 本机 DPAPI 加密，无遥测，不调用模型。",
-  "version": "0.12.46",
+  "version": "0.12.47",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -27,6 +27,7 @@
   "scripts": {
     "test": "node test/run.cjs && node test/catalog.test.cjs && node test/a11y.test.cjs && node test/version-audit.test.cjs && node test/legacy.test.cjs && node test/import-reliability.test.cjs && node test/audit-0119.test.cjs && node test/audit-0121.test.cjs && node test/audit-0141.test.cjs && node test/audit-0161.test.cjs && node test/audit-0181.test.cjs && node test/audit-0120.test.cjs && node test/report-format.test.cjs && node test/import-state.test.cjs",
     "test:e2e": "node test/e2e-smoke.cjs",
+    "test:sandbox": "node test/install-sandbox.test.cjs",
     "check:sessions": "node test/session-health.cjs"
   },
   "peerDependencies": {
