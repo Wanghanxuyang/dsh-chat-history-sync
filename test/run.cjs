@@ -114,6 +114,7 @@ if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').in
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes('copyFileSync(oldDest, dest)')) fail('non-destructive attachment migration missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes('replace(/[\\r\\n\\t]+/g')) fail('progress title sanitization missing');
 if (!indexText.includes('const cleanLabel =')) fail('account label sanitization missing');
+if (!indexText.includes('cleanLabel((hit && hit.name)')) fail('account mirror label sanitization missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
