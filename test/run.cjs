@@ -90,6 +90,7 @@ if (!indexText.includes('installDeferredByUser: true')) fail('user-deferred flag
 if (!indexText.includes('else { patch2.installDeferred = false')) fail('install schedule failure card missing');
 if (clientText.includes('__installPending')) fail('stale account install marker still used');
 if (!indexText.includes('const clearOld =')) fail('relogin stale result cleanup missing');
+if (!clientText.includes('const flash =')) fail('transient error clearing missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
