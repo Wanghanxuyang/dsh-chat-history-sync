@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.11.72
+
+- manifest 写入 `keyVersion: 2`，标记新版会话键格式
+- 旧键仍通过 fallback 迁移，不强制全量重建
+
 ## 0.11.71
 
 - 单个账号 dataset 写入失败时只跳过该账号，不再中断其余账号
