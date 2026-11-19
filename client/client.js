@@ -46,7 +46,7 @@ window.__ModuleLoader__.load({
         const link = line.match(/\[([^\]]+)\]\(([^)]+)\)/);
         return h('div', { key, className: 'msx-report-item' },
           '• ' + line.replace(/^-\s+/, '').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1'),
-          link ? h('button', { className: 'msx-linkbtn', 'aria-label': '复制会话位置路径', title: link[2], onClick: () => { try { navigator.clipboard.writeText(link[2]); } catch (e) {} } }, '复制路径') : null,
+          link ? h('button', { className: 'msx-linkbtn', 'aria-label': '复制会话位置路径', title: link[2], onClick: () => { try { let p = link[2]; try { p = decodeURIComponent(p); } catch (e) {} navigator.clipboard.writeText(p); } catch (e) {} } }, '复制路径') : null,
         );
       }
       return h('div', { key, className: 'msx-report-line' }, line.replace(/\[([^\]]+)\]\([^)]*\)/g, '$1'));
