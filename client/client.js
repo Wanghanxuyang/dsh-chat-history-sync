@@ -372,7 +372,7 @@ window.__ModuleLoader__.load({
       let accounts = [];
       try { accounts = JSON.parse((value && value.accounts) || '[]'); } catch (e) { accounts = []; }
       if (!Array.isArray(accounts)) accounts = [];
-      const installPending = !!(value && value.installPending) || accounts.some((a) => a && a.__installPending);
+      const installPending = !!(value && value.installPending);
       const installDeferred = !!(value && value.installDeferred);
       const duplicateCount = Number(value && value.duplicateCount) || 0;
       let health = {};
