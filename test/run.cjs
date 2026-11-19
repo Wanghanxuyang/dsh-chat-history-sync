@@ -65,6 +65,7 @@ if (!indexText.includes('replace(/[\\x00-\\x1f\\\\/:*?"<>|]/g')) fail('safeName 
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'install.cjs'), 'utf8').includes('\\x00-\\x1f')) fail('installer control-char sanitization missing');
 if (!indexText.includes('noChangeText')) fail('auto no-change partial failure lost');
 if (!indexText.includes('!/^ - /.test(line)')) fail('old account summary log scrub missing');
+if (!clientText.includes('上次安装失败')) fail('install failure card copy missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('cleanTitle')) fail('catalog link label sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('\\x00-\\x1f')) fail('catalog filename control-char sanitization missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'catalog.cjs'), 'utf8').includes('encodeURIComponent(fname)')) fail('catalog link encoding missing');
