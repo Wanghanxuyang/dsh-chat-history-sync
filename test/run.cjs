@@ -75,6 +75,7 @@ if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'export.cjs'), 'utf8').inc
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes("getRetry('https://chat.deepseek.com/api/v0/chat/history_messages")) fail('history fetch retry missing');
 if (!fs.readFileSync(path.join(root, 'lib', 'engine', 'sync-all.cjs'), 'utf8').includes('convTag')) fail('conversation-scoped attachment names missing');
 if (!clientText.includes('aria-valuenow')) fail('progressbar value missing');
+if (!clientText.includes('setTimeout(() => setBusy(false), 3000)')) fail('login busy guard missing');
 if (!indexText.includes('rmSync(resultFile, { force: true })')) fail('stale login result not cleared before login');
 if (!indexText.includes("rmSync(path.join(dataDir, 'install-result.json'), { force: true })")) fail('stale install result not cleared before schedule');
 if (!clientText.includes('安装未完成')) fail('install watchdog status not rendered');
