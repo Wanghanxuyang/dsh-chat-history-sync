@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.31
+
+- 串行化 settings 持久化写入，避免同步完成时多次 update 并发触发
+  `HMR transactions cannot be nested` 导致状态/报告没有刷新
+
 ## 0.12.30
 
 - 搜索来源标题转义反斜杠/星号/下划线/反引号，避免粗体/斜体被标题打断
