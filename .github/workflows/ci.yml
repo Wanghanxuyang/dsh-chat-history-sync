@@ -1,13 +1,1 @@
-name: ci
-on:
-  push:
-  pull_request:
-jobs:
-  test:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - run: npm test
+bmFtZTogY2kKb246CiAgcHVzaDoKICBwdWxsX3JlcXVlc3Q6CmpvYnM6CiAgdGVzdDoKICAgIHJ1bnMtb246IHdpbmRvd3MtbGF0ZXN0CiAgICBzdGVwczoKICAgICAgLSB1c2VzOiBhY3Rpb25zL2NoZWNrb3V0QHY0CiAgICAgIC0gdXNlczogYWN0aW9ucy9zZXR1cC1ub2RlQHY0CiAgICAgICAgd2l0aDoKICAgICAgICAgIG5vZGUtdmVyc2lvbjogMjIKICAgICAgLSBydW46IG5wbSB0ZXN0Cg==

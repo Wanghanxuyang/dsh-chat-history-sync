@@ -1,1 +1,1 @@
-![Chat History Sync: cloud conversations merge into month workspaces and a sync report](preview.svg)
+IVtDaGF0IEhpc3RvcnkgU3luYzogY2xvdWQgY29udmVyc2F0aW9ucyBtZXJnZSBpbnRvIG1vbnRoIHdvcmtzcGFjZXMgYW5kIGEgc3luYyByZXBvcnRdKHByZXZpZXcuc3ZnKQo=

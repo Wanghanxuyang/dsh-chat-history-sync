@@ -1,7 +1,1 @@
-{
-  "meta": {
-    "title": "Chat History Sync",
-    "description": "Sync DeepSeek account chat history (web + mobile app) into DeepSeek Harness as native sessions; Windows-only, DPAPI-encrypted local tokens, no telemetry.",
-    "detail": "docs/DETAIL.md"
-  }
-}
+ewogICJtZXRhIjogewogICAgInRpdGxlIjogIkNoYXQgSGlzdG9yeSBTeW5jIiwKICAgICJkZXNjcmlwdGlvbiI6ICJTeW5jIERlZXBTZWVrIGFjY291bnQgY2hhdCBoaXN0b3J5ICh3ZWIgKyBtb2JpbGUgYXBwKSBpbnRvIERlZXBTZWVrIEhhcm5lc3MgYXMgbmF0aXZlIHNlc3Npb25zOyBXaW5kb3dzLW9ubHksIERQQVBJLWVuY3J5cHRlZCBsb2NhbCB0b2tlbnMsIG5vIHRlbGVtZXRyeS4iLAogICAgImRldGFpbCI6ICJkb2NzL0RFVEFJTC5tZCIKICB9Cn0K
